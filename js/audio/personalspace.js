@@ -5,14 +5,15 @@
 // randomised independent schedules so the listener never anticipates the next event.
 //
 // Gesture types:
-//   stroke  — low-pass (~820 Hz)   — warm soft sweep tracing an arc past one ear, 3–5.5 s
-//   puff    — high-pass (~2100 Hz) — brief airy burst near the ear canal, 0.35–0.8 s
-//   rustle  — band-pass (~5800 Hz) — high-frequency crispness with slow drift, 3.5–7 s
-//   crackle — band-pass (~5500 Hz) — very brief (3–8 ms) impulsive micro-pops
+//   stroke  — low-pass (~820 Hz)   — warm soft sweep tracing an arc past one ear
+//   puff    — high-pass (~2100 Hz) — brief airy burst near the ear canal (fixed short duration)
+//   rustle  — band-pass (~5800 Hz) — high-frequency crispness with slow drift
+//   crackle — band-pass (~5500 Hz) — very brief (3–10 ms) impulsive micro-pops
 //
-// 3D positioning uses expanded X/Y/Z ranges so HRTF coloration is pronounced.
-// Strokes trace long arcs (change in Y and Z), giving a clear sense of movement.
-// Crackle fires at ~3 /s and provides continuous micro-texture between gestures.
+// User controls:
+//   psPace     — time between end of one stroke/puff/rustle and onset of the next
+//   psDuration — length of stroke and rustle (puff is fixed short; crackle ignores both)
+//   Crackle fires at its own fixed rate regardless of pace or duration settings.
 
 const TICK_MS = 20;
 
@@ -132,7 +133,18 @@ function _startGesture(type, voice, state) {
   const gdef = GTYPES[type];
   const now  = _ctx.currentTime;
   const peak = state[GAIN_KEY[type]] ?? gdef.peakGain;
-  const dur  = _rand(gdef.durMin, gdef.durMax);
+
+  // Duration: stroke and rustle scale with psDuration.
+  // Scale formula gives 0.5× at min, ~2.73× at max so stroke durMax (5.5 s) hits 15 s.
+  // Both are hard-capped at 15 s. Puff and crackle always use the raw GTYPES range.
+  let dur;
+  if (type === 'stroke' || type === 'rustle') {
+    const p     = state.psDuration ?? 0.5;
+    const scale = 0.5 + p * 2.227;
+    dur = _rand(gdef.durMin * scale, Math.min(gdef.durMax * scale, 15));
+  } else {
+    dur = _rand(gdef.durMin, gdef.durMax);
+  }
   const sign = Math.random() < 0.5 ? -1 : 1;  // left or right ear
 
   // Expanded position ranges for stronger HRTF coloration
@@ -213,7 +225,9 @@ function _tick(state) {
       voice.t += dt / voice.duration;
       if (voice.t >= 1) {
         voice.phase    = 'idle';
-        voice.waitLeft = _rand(gdef.waitMin, gdef.waitMax) * paceScale;
+        // Crackle has its own fixed cadence — ignore paceScale
+        const wScale   = type === 'crackle' ? 1 : paceScale;
+        voice.waitLeft = _rand(gdef.waitMin, gdef.waitMax) * wScale;
       } else if (type !== 'crackle') {
         // Update position for sustained gestures
         const et = _smooth(voice.t);

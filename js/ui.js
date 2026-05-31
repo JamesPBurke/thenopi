@@ -70,8 +70,9 @@ export function syncUI(state) {
   _setSlider('s-ps-puff',    state.psPuff,    0, 1);
   _setSlider('s-ps-rustle',  state.psRustle,  0, 1);
   _setSlider('s-ps-crackle', state.psCrackle, 0, 2);
-  _setSlider('s-ps-pace',    state.psPace,    0, 1);
-  _setSlider('s-ps-vol',     state.psVol,     0, 1);
+  _setSlider('s-ps-pace',     state.psPace,     0, 1);
+  _setSlider('s-ps-duration', state.psDuration, 0, 1);
+  _setSlider('s-ps-vol',      state.psVol,      0, 1);
 
   showMode(state.mode);
   renderLabels(state);
@@ -108,8 +109,9 @@ export function renderLabels(state) {
     _setText('d-ps-puff',    Math.round(state.psPuff    * 100) + '%');
     _setText('d-ps-rustle',  Math.round(state.psRustle  * 100) + '%');
     _setText('d-ps-crackle', Math.round(state.psCrackle * 100) + '%');
-    _setText('d-ps-pace',    _paceLabel(state.psPace));
-    _setText('d-ps-vol',     Math.round(state.psVol     * 100) + '%');
+    _setText('d-ps-pace',     _paceLabel(state.psPace));
+    _setText('d-ps-duration', _nearfieldDurLabel(state.psDuration));
+    _setText('d-ps-vol',      Math.round(state.psVol * 100) + '%');
   }
 }
 
@@ -124,6 +126,11 @@ export function renderBrainwave(state) {
   pill.classList.remove('badge-animate');
   void pill.offsetWidth; // force reflow to restart animation
   pill.classList.add('badge-animate');
+}
+
+function _nearfieldDurLabel(v) {
+  // linear map: 0 → ~3 s, 0.5 → ~9 s, 1 → ~15 s
+  return '~' + Math.round(3 + v * 12) + ' s';
 }
 
 function _intensityLabel(v) {
@@ -240,8 +247,9 @@ export function setupEvents(cb) {
     { id: 's-ps-puff',    key: 'psPuff'    },
     { id: 's-ps-rustle',  key: 'psRustle'  },
     { id: 's-ps-crackle', key: 'psCrackle' },
-    { id: 's-ps-pace',    key: 'psPace'    },
-    { id: 's-ps-vol',     key: 'psVol'     },
+    { id: 's-ps-pace',     key: 'psPace'     },
+    { id: 's-ps-duration', key: 'psDuration' },
+    { id: 's-ps-vol',      key: 'psVol'      },
   ];
   SLIDERS.forEach(({ id, key }) => {
     const el = document.getElementById(id);

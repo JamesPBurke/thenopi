@@ -243,9 +243,9 @@
           <div>
             <div class="flex items-center gap-2 mb-1.5">
               <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(6,182,212,0.2);color:#67e8f9;">Puff</span>
-              <span class="text-xs" style="color:#4b5563;">0.35–0.8 seconds</span>
+              <span class="text-xs" style="color:#4b5563;">0.35–0.8 s — always short</span>
             </div>
-            <p class="text-xs" style="color:#9ca3af;">A brief, airy burst near the ear canal. High-pass filtered — only the upper frequencies — giving it an airy, almost electric quality. Short, punchy, and clearly distinct from the other elements.</p>
+            <p class="text-xs" style="color:#9ca3af;">A brief, airy burst near the ear canal. High-pass filtered — only the upper frequencies — giving it an airy, almost electric quality. Short, punchy, and clearly distinct from the other elements. Its duration is fixed and not affected by the Duration slider.</p>
           </div>
           <div>
             <div class="flex items-center gap-2 mb-1.5">
@@ -257,23 +257,30 @@
           <div>
             <div class="flex items-center gap-2 mb-1.5">
               <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(249,115,22,0.2);color:#fdba74;">Crackle</span>
-              <span class="text-xs" style="color:#4b5563;">3–10 ms each, several per second</span>
+              <span class="text-xs" style="color:#4b5563;">3–10 ms each, several per second — fixed rate</span>
             </div>
-            <p class="text-xs" style="color:#9ca3af;">Very brief micro-pops, each only a few milliseconds, occurring several times per second. The primary ongoing texture of the mode — a subtle, continuous aliveness. The crackle slider range extends above 100% because this element is intentionally prominent.</p>
+            <p class="text-xs" style="color:#9ca3af;">Very brief micro-pops, each only a few milliseconds, occurring several times per second. The primary ongoing texture of the mode — a subtle, continuous aliveness. Crackle runs at its own fixed rate; neither the Pace nor the Duration slider affects it. Its level slider extends above 100% because this element is intentionally prominent.</p>
           </div>
         </div>
       </div>
 
       <div class="card p-5">
         <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Controls</h2>
-        <div class="space-y-3">
+        <div class="space-y-4">
           <div>
             <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Effect Levels (Stroke / Puff / Rustle / Crackle)</p>
-            <p class="text-xs" style="color:#9ca3af;">Each element has its own level slider. Crackle defaults higher than the others and its slider extends past 100% — this is intentional. The crackle is meant to be the dominant texture. Set the others to taste around it.</p>
+            <p class="text-xs" style="color:#9ca3af;">Each element has its own level slider. Crackle defaults higher than the others and its slider extends past 100% — this is intentional. The crackle is the dominant texture; set the others to taste around it.</p>
           </div>
           <div>
             <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Pace</p>
-            <p class="text-xs" style="color:#9ca3af;">Controls how frequently gestures occur. At low pace, events arrive rarely with comfortable silence between. At high pace, the streams overlap more continuously and the experience feels busier. All four elements scale together.</p>
+            <p class="text-xs" style="color:#9ca3af;">Controls the time between the end of one stroke, puff, or rustle event and the beginning of the next of that same type. Crackle runs at its own fixed rate and is not affected by this slider.</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Duration</p>
+            <p class="text-xs" style="color:#9ca3af;">Controls how long strokes and rustles last. At the minimum, events are brief (about 1.5–3 s); at the maximum, long and sustained up to 15 s. The display shows the approximate stroke duration at the current slider position.</p>
+            <div class="mt-2 p-2 rounded-lg" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+              <p class="text-xs" style="color:#6b7280;">Puff is always short (0.35–0.8 s) regardless of this slider — its brevity is part of its character. Crackle is sub-millisecond and also unaffected.</p>
+            </div>
           </div>
           <div>
             <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Volume</p>

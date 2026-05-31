@@ -10,7 +10,7 @@ export const DEFAULTS = {
   bowlPerformance: 'ground',   // 'drift' | 'ground' | 'warm' | 'journey'
   // Mode 4: Nearfield
   psStroke: 0.28, psPuff: 0.32, psRustle: 0.26, psCrackle: 1.40,
-  psPace: 0.5, psVol: 0.65,
+  psPace: 0.5, psDuration: 0.5, psVol: 0.65,
 };
 
 export const BUILTIN_PRESETS = {
@@ -22,8 +22,8 @@ export const BUILTIN_PRESETS = {
   'bowl-ground':    { mode:2, bowlFreq:256, bowlSustain:0.35, bowlVol:0.70, bowlPace:0.35, bowlPerformance:'ground'  },
   'bowl-warm':      { mode:2, bowlFreq:341, bowlSustain:0.38, bowlVol:0.72, bowlPace:0.45, bowlPerformance:'warm'    },
   'bowl-journey':   { mode:2, bowlFreq:256, bowlSustain:0.25, bowlVol:0.70, bowlPace:0.60, bowlPerformance:'journey' },
-  'cocoon':         { mode:4, psStroke:0.18, psPuff:0.20, psRustle:0.16, psCrackle:0.90, psPace:0.28, psVol:0.72 },
-  'night-presence': { mode:4, psStroke:0.34, psPuff:0.40, psRustle:0.32, psCrackle:1.80, psPace:0.58, psVol:0.60 },
+  'cocoon':         { mode:4, psStroke:0.18, psPuff:0.20, psRustle:0.16, psCrackle:0.90, psPace:0.28, psDuration:0.35, psVol:0.72 },
+  'night-presence': { mode:4, psStroke:0.34, psPuff:0.40, psRustle:0.32, psCrackle:1.80, psPace:0.58, psDuration:0.60, psVol:0.60 },
 };
 
 export const BRAINWAVES = [
