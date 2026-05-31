@@ -9,6 +9,7 @@ export const eng = {
   ctx: null,
   playing: false,
   activeMode: null,
+  outputGain: null,  // global fade node sitting between all modes and ctx.destination
 };
 
 export function initAudio(state) {
@@ -16,13 +17,16 @@ export function initAudio(state) {
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) { alert('Web Audio API not supported in this browser.'); return; }
   eng.ctx = new Ctx();
+  eng.outputGain = eng.ctx.createGain();
+  eng.outputGain.gain.value = 1;
+  eng.outputGain.connect(eng.ctx.destination);
   _buildMode(state);
   _keepAlive();
   _setupMediaSession();
 }
 
 function _buildMode(state) {
-  MODES[state.mode].build(eng.ctx, state);
+  MODES[state.mode].build(eng.ctx, state, eng.outputGain);
   eng.activeMode = state.mode;
 }
 
@@ -35,7 +39,7 @@ export function switchMode(newModeNum, state) {
     eng.activeMode = null;
   }
   if (eng.ctx) {
-    MODES[newModeNum].build(eng.ctx, state);
+    MODES[newModeNum].build(eng.ctx, state, eng.outputGain);
     eng.activeMode = newModeNum;
     if (eng.playing) MODES[newModeNum].startTimer(state);
   }
@@ -45,12 +49,27 @@ export function togglePlay(state) {
   if (!eng.ctx) initAudio(state);
 
   if (eng.playing) {
-    if (eng.activeMode !== null) MODES[eng.activeMode].stopTimer();
-    eng.ctx.suspend();
     eng.playing = false;
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+
+    // Stop scheduling new strikes immediately; current bowl sounds fade with the gain
+    if (eng.activeMode !== null) MODES[eng.activeMode].stopTimer();
+
+    // Fade output to silence over 2 s, then suspend
+    const now = eng.ctx.currentTime;
+    eng.outputGain.gain.cancelScheduledValues(now);
+    eng.outputGain.gain.setValueAtTime(eng.outputGain.gain.value, now);
+    eng.outputGain.gain.linearRampToValueAtTime(0, now + 1);
+    setTimeout(() => { if (!eng.playing) eng.ctx.suspend(); }, 1100);
   } else {
     eng.ctx.resume();
+
+    // Restore output gain (handles re-press during a fade-out)
+    const now = eng.ctx.currentTime;
+    eng.outputGain.gain.cancelScheduledValues(now);
+    eng.outputGain.gain.setValueAtTime(eng.outputGain.gain.value, now);
+    eng.outputGain.gain.linearRampToValueAtTime(1, now + 0.15);
+
     if (eng.activeMode !== null) MODES[eng.activeMode].startTimer(state);
     eng.playing = true;
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';

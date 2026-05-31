@@ -1,4 +1,4 @@
-import { BRAINWAVES, CHAKRAS, PROXIMITY_MOODS } from './state.js';
+import { BRAINWAVES, CHAKRAS } from './state.js';
 
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -61,15 +61,17 @@ export function syncUI(state) {
   _setSlider('s-brown',   state.brownVol,          0,   1);
   _setSlider('s-spatial', state.spatialIntensity,  0,   1);
   // Mode 2 sliders
-  _setSlider('s-bowl-freq',     state.bowlFreq,          100, 600);
-  _setSlider('s-bowl-interval', state.bowlStrikeInterval, 5,   30);
-  _setSlider('s-bowl-sustain',  state.bowlSustain,        0.1, 1);
-  _setSlider('s-bowl-vol',      state.bowlVol,            0,   1);
+  _setSlider('s-bowl-freq',    state.bowlFreq,    100, 600);
+  _setSlider('s-bowl-sustain', state.bowlSustain, 0.1, 1);
+  _setSlider('s-bowl-pace',    state.bowlPace,    0,   1);
+  _setSlider('s-bowl-vol',     state.bowlVol,     0,   1);
   // Mode 4 sliders
-  _setSlider('s-ps-proximity',  state.psProximity,        0.05, 0.4);
-  _setSlider('s-ps-warmth',     state.psWarmth,           400,  2000);
-  _setSlider('s-ps-movespeed',  state.psMoveSpeed,        0,    1);
-  _setSlider('s-ps-vol',        state.psVol,              0,    1);
+  _setSlider('s-ps-stroke',  state.psStroke,  0, 1);
+  _setSlider('s-ps-puff',    state.psPuff,    0, 1);
+  _setSlider('s-ps-rustle',  state.psRustle,  0, 1);
+  _setSlider('s-ps-crackle', state.psCrackle, 0, 2);
+  _setSlider('s-ps-pace',    state.psPace,    0, 1);
+  _setSlider('s-ps-vol',     state.psVol,     0, 1);
 
   showMode(state.mode);
   renderLabels(state);
@@ -93,18 +95,21 @@ export function renderLabels(state) {
     _setText('d-spatial', Math.round(state.spatialIntensity * 100) + '%');
     renderBrainwave(state);
   } else if (state.mode === 2) {
-    _setText('d-bowl-freq',     Math.round(state.bowlFreq) + ' Hz');
-    _setText('d-bowl-interval', state.bowlStrikeInterval.toFixed(1) + ' s');
-    _setText('d-bowl-sustain',  Math.round(state.bowlSustain * 100) + '%');
-    _setText('d-bowl-vol',      Math.round(state.bowlVol * 100) + '%');
+    _setText('d-bowl-freq',    Math.round(state.bowlFreq) + ' Hz');
+    _setText('d-bowl-sustain',      Math.round(state.bowlSustain * 100) + '%');
+    _setText('d-bowl-sustain-real', _ringDuration(state.bowlSustain));
+    _setText('d-bowl-pace',         _paceLabel(state.bowlPace));
+    _setText('d-bowl-pace-real',    _paceDelayText(state.bowlSustain, state.bowlPace));
+    _setText('d-bowl-vol',     Math.round(state.bowlVol * 100) + '%');
     renderChakra(state);
-    _renderBowl2Controls(state);
+    _renderBowlPerformance(state);
   } else if (state.mode === 4) {
-    _setText('d-ps-proximity',  state.psProximity.toFixed(2));
-    _setText('d-ps-warmth',     Math.round(state.psWarmth) + ' Hz');
-    _setText('d-ps-movespeed',  Math.round(state.psMoveSpeed * 100) + '%');
-    _setText('d-ps-vol',        Math.round(state.psVol * 100) + '%');
-    renderProximityMood(state);
+    _setText('d-ps-stroke',  Math.round(state.psStroke  * 100) + '%');
+    _setText('d-ps-puff',    Math.round(state.psPuff    * 100) + '%');
+    _setText('d-ps-rustle',  Math.round(state.psRustle  * 100) + '%');
+    _setText('d-ps-crackle', Math.round(state.psCrackle * 100) + '%');
+    _setText('d-ps-pace',    _paceLabel(state.psPace));
+    _setText('d-ps-vol',     Math.round(state.psVol     * 100) + '%');
   }
 }
 
@@ -121,61 +126,49 @@ export function renderBrainwave(state) {
   pill.classList.add('badge-animate');
 }
 
-function _renderBowl2Controls(state) {
-  const on = state.bowl2Enabled;
+function _intensityLabel(v) {
+  if (v < 0.33) return 'Subtle';
+  if (v < 0.67) return 'Present';
+  return 'Strong';
+}
 
-  const toggleBtn = document.getElementById('bowl2-toggle');
-  if (toggleBtn) {
-    toggleBtn.textContent = on ? 'On' : 'Off';
-    toggleBtn.setAttribute('aria-pressed', String(on));
-    toggleBtn.style.background = on
-      ? 'linear-gradient(135deg,#4c1d95,#7c3aed)'
-      : 'rgba(139,92,246,0.1)';
-    toggleBtn.style.border = on
-      ? '1px solid rgba(167,139,250,0.4)'
-      : '1px solid rgba(139,92,246,0.2)';
-    toggleBtn.style.color = on ? '#fff' : '#c4b5fd';
-  }
+function _paceLabel(pace) {
+  if (pace < 0.25) return 'Still';
+  if (pace < 0.50) return 'Calm';
+  if (pace < 0.75) return 'Gentle';
+  return 'Flowing';
+}
 
-  const intervalSection = document.getElementById('bowl2-interval-section');
-  if (intervalSection) intervalSection.hidden = !on;
+function _ringDuration(sustain) {
+  // audible lifespan ≈ 3 × tau, tau = (sustain × 275) / 5
+  const secs = Math.round(sustain * 165);
+  if (secs < 60) return '~' + secs + ' s';
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return s > 0 ? `~${m} min ${s} s` : `~${m} min`;
+}
 
-  if (!on) return;
+function _paceDelayText(sustain, pace) {
+  // mirrors _overlapDelay in bowls.js
+  const tau      = (sustain * 275) / 5;
+  const frac     = 0.20 + pace * 0.35;
+  const minDelay = Math.max(tau * 0.25, 3);
+  const secs     = Math.max(Math.round(-tau * Math.log(frac)), Math.round(minDelay));
+  if (secs < 60) return '~' + secs + ' s between bowls';
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return s > 0 ? `~${m} min ${s} s between bowls` : `~${m} min between bowls`;
+}
 
-  // Highlight the active interval button
-  document.querySelectorAll('.bowl2-interval-btn').forEach(btn => {
-    const match = Math.abs(parseFloat(btn.dataset.ratio) - state.bowl2Ratio) < 0.005;
+function _renderBowlPerformance(state) {
+  document.querySelectorAll('.perf-btn').forEach(btn => {
+    const match = btn.dataset.perf === state.bowlPerformance;
     btn.style.background = match ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.04)';
     btn.style.border     = match ? '1px solid rgba(139,92,246,0.55)' : '1px solid rgba(255,255,255,0.1)';
     btn.style.color      = match ? '#c4b5fd' : 'rgba(255,255,255,0.5)';
   });
-
-  // Bowl 2 derived chakra badge
-  const freq2 = state.bowlFreq * state.bowl2Ratio;
-  const ck2   = CHAKRAS.find(c => freq2 <= c.max) || CHAKRAS[CHAKRAS.length - 1];
-  const pill2 = document.getElementById('bowl2-chakra-pill');
-  if (pill2) {
-    const { r, g, b } = ck2;
-    pill2.textContent      = `Bowl 2: ${ck2.label} (${ck2.note}) — ${Math.round(freq2)} Hz`;
-    pill2.style.background = `rgba(${r},${g},${b},0.15)`;
-    pill2.style.border     = `1px solid rgba(${r},${g},${b},0.3)`;
-    pill2.style.color      = `rgb(${r},${g},${b})`;
-  }
 }
 
-export function renderProximityMood(state) {
-  const pm   = PROXIMITY_MOODS.find(m => state.psProximity <= m.max) || PROXIMITY_MOODS[PROXIMITY_MOODS.length - 1];
-  const pill = document.getElementById('ps-mood-pill');
-  if (!pill) return;
-  const { r, g, b } = pm;
-  pill.textContent      = pm.label + ' — ' + pm.desc;
-  pill.style.background = `rgba(${r},${g},${b},0.2)`;
-  pill.style.border     = `1px solid rgba(${r},${g},${b},0.4)`;
-  pill.style.color      = `rgb(${r},${g},${b})`;
-  pill.classList.remove('badge-animate');
-  void pill.offsetWidth;
-  pill.classList.add('badge-animate');
-}
 
 export function renderChakra(state) {
   const ck   = CHAKRAS.find(c => state.bowlFreq <= c.max) || CHAKRAS[CHAKRAS.length - 1];
@@ -239,14 +232,16 @@ export function setupEvents(cb) {
     { id: 's-pink',          key: 'pinkVol'            },
     { id: 's-brown',         key: 'brownVol'           },
     { id: 's-spatial',       key: 'spatialIntensity'   },
-    { id: 's-bowl-freq',     key: 'bowlFreq'           },
-    { id: 's-bowl-interval', key: 'bowlStrikeInterval' },
-    { id: 's-bowl-sustain',  key: 'bowlSustain'        },
-    { id: 's-bowl-vol',      key: 'bowlVol'            },
-    { id: 's-ps-proximity',  key: 'psProximity'        },
-    { id: 's-ps-warmth',     key: 'psWarmth'           },
-    { id: 's-ps-movespeed',  key: 'psMoveSpeed'        },
-    { id: 's-ps-vol',        key: 'psVol'              },
+    { id: 's-bowl-freq',    key: 'bowlFreq'    },
+    { id: 's-bowl-sustain', key: 'bowlSustain' },
+    { id: 's-bowl-pace',    key: 'bowlPace'    },
+    { id: 's-bowl-vol',     key: 'bowlVol'     },
+    { id: 's-ps-stroke',  key: 'psStroke'  },
+    { id: 's-ps-puff',    key: 'psPuff'    },
+    { id: 's-ps-rustle',  key: 'psRustle'  },
+    { id: 's-ps-crackle', key: 'psCrackle' },
+    { id: 's-ps-pace',    key: 'psPace'    },
+    { id: 's-ps-vol',     key: 'psVol'     },
   ];
   SLIDERS.forEach(({ id, key }) => {
     const el = document.getElementById(id);
@@ -271,12 +266,14 @@ export function setupEvents(cb) {
     btn.addEventListener('click', () => cb.onPresetLoad(btn.dataset.preset));
   });
 
-  // Bowl 2 toggle and interval buttons (Mode 2)
-  const bowl2Toggle = document.getElementById('bowl2-toggle');
-  if (bowl2Toggle) bowl2Toggle.addEventListener('click', cb.onBowl2Toggle);
-  document.querySelectorAll('.bowl2-interval-btn').forEach(btn => {
-    btn.addEventListener('click', () => cb.onBowl2Interval(parseFloat(btn.dataset.ratio)));
+  // Performance selector (Mode 2)
+  document.querySelectorAll('.perf-btn').forEach(btn => {
+    btn.addEventListener('click', () => cb.onPerfSelect(btn.dataset.perf));
   });
+
+  // Soundscapes ± proportional scale buttons
+  document.getElementById('soundscape-minus').addEventListener('click', () => cb.onSoundscapeScale(0.80));
+  document.getElementById('soundscape-plus') .addEventListener('click', () => cb.onSoundscapeScale(1.25));
 
   // Save custom preset
   document.getElementById('save-preset').addEventListener('click', cb.onPresetSave);

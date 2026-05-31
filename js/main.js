@@ -19,26 +19,33 @@ function handleSliderChange(key, value) {
   persist();
 }
 
-function handleBowl2Toggle() {
-  state.bowl2Enabled = !state.bowl2Enabled;
-  renderLabels(state);
+function handlePerfSelect(perf) {
+  handlePresetLoad('bowl-' + perf);
+}
+
+function handleSoundscapeScale(factor) {
+  ['whiteVol', 'pinkVol', 'brownVol'].forEach(key => {
+    state[key] = Math.min(1, Math.max(0, state[key] * factor));
+  });
+  syncUI(state);
   applyAudioState(state);
   persist();
 }
 
-function handleBowl2Interval(ratio) {
-  state.bowl2Ratio = ratio;
-  renderLabels(state);
-  applyAudioState(state);
-  persist();
+const MODE_VOL_KEY = { 1: 'binauralVol', 2: 'bowlVol', 4: 'psVol' };
+
+// Always reset the active mode's volume to 15% so the user is never surprised.
+function _safeVol(mode) {
+  const k = MODE_VOL_KEY[mode];
+  if (k) state[k] = 0.15;
 }
 
 function handleModeSwitch(newMode) {
   if (newMode === state.mode) return;
   state.mode = newMode;
+  _safeVol(newMode);
   switchMode(newMode, state);
-  showMode(newMode);
-  renderLabels(state);
+  syncUI(state);
   persist();
 }
 
@@ -56,6 +63,7 @@ function handlePresetLoad(presetKey) {
   const newMode = patch.mode ?? state.mode;
   Object.assign(state, patch);
   state.mode = newMode;
+  _safeVol(newMode);  // override whatever volume the preset carried
 
   syncUI(state);
 
@@ -102,6 +110,7 @@ function handleImport(file) {
       const data = JSON.parse(e.target.result);
       if (data.state) {
         Object.assign(state, data.state);
+        _safeVol(state.mode);  // imported files may carry loud settings
         syncUI(state);
         if (eng.ctx) {
           switchMode(state.mode, state);
@@ -124,6 +133,7 @@ function handleImport(file) {
 
 document.addEventListener('DOMContentLoaded', () => {
   load();
+  _safeVol(state.mode);  // always start quiet, regardless of saved or default value
   syncUI(state);
   renderCustomPresets(presetStore);
 
@@ -136,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     onPresetDelete: handlePresetDelete,
     onExport:        handleExport,
     onImport:        handleImport,
-    onBowl2Toggle:   handleBowl2Toggle,
-    onBowl2Interval: handleBowl2Interval,
+    onPerfSelect:         handlePerfSelect,
+    onSoundscapeScale:    handleSoundscapeScale,
   });
 
   setMediaHandlers(

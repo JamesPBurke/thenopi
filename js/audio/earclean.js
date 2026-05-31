@@ -6,7 +6,7 @@
 //
 // All exports are no-ops until implementation begins.
 
-export function build(_ctx, _state) {}
+export function build(_ctx, _state, _dest) {}
 export function teardown() {}
 export function applyState(_state, _ctx) {}
 export function startTimer(_state) {}

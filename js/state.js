@@ -5,10 +5,12 @@ export const DEFAULTS = {
   binauralVol: 0.5, whiteVol: 0, pinkVol: 0.3, brownVol: 0.3,
   spatialIntensity: 0.5,
   // Mode 2: Tibetan Singing Bowls
-  bowlFreq: 256, bowlStrikeInterval: 8, bowlSustain: 0.7, bowlVol: 0.7,
-  bowl2Enabled: false, bowl2Ratio: 1.5,  // second bowl: Perfect Fifth above
-  // Mode 4: Personal Space Audio
-  psProximity: 0.12, psWarmth: 800, psMoveSpeed: 0.4, psVol: 0.65,
+  bowlFreq: 256, bowlSustain: 0.35, bowlVol: 0.7,
+  bowlPace: 0.35,              // 0=still/fewest transitions, 1=flowing
+  bowlPerformance: 'ground',   // 'drift' | 'ground' | 'warm' | 'journey'
+  // Mode 4: Nearfield
+  psStroke: 0.28, psPuff: 0.32, psRustle: 0.26, psCrackle: 1.40,
+  psPace: 0.5, psVol: 0.65,
 };
 
 export const BUILTIN_PRESETS = {
@@ -16,11 +18,12 @@ export const BUILTIN_PRESETS = {
   'study-focus':    { mode:1, carrierFreq:260, beatFreq:18, binauralVol:0.55, whiteVol:0.1, pinkVol:0.4,  brownVol:0.1,  spatialIntensity:0.35 },
   'anxiety-relief': { mode:1, carrierFreq:180, beatFreq:10, binauralVol:0.5,  whiteVol:0,   pinkVol:0.3,  brownVol:0.45, spatialIntensity:0.6  },
   'meditation':     { mode:1, carrierFreq:200, beatFreq:6,  binauralVol:0.6,  whiteVol:0,   pinkVol:0.2,  brownVol:0.35, spatialIntensity:0.5  },
-  'heart-bowl':     { mode:2, bowlFreq:341, bowlStrikeInterval:10, bowlSustain:0.8,  bowlVol:0.7,  bowl2Enabled:false, bowl2Ratio:1.5   },
-  'crown-bowl':     { mode:2, bowlFreq:256, bowlStrikeInterval:13, bowlSustain:0.9,  bowlVol:0.65, bowl2Enabled:true,  bowl2Ratio:2.0   },
-  'root-harmony':   { mode:2, bowlFreq:256, bowlStrikeInterval:9,  bowlSustain:0.82, bowlVol:0.68, bowl2Enabled:true,  bowl2Ratio:1.5   },
-  'cocoon':         { mode:4, psProximity:0.06, psWarmth:450, psMoveSpeed:0.15, psVol:0.75 },
-  'night-presence': { mode:4, psProximity:0.18, psWarmth:1100, psMoveSpeed:0.55, psVol:0.55 },
+  'bowl-drift':     { mode:2, bowlFreq:174, bowlSustain:0.50, bowlVol:0.68, bowlPace:0.12, bowlPerformance:'drift'   },
+  'bowl-ground':    { mode:2, bowlFreq:256, bowlSustain:0.35, bowlVol:0.70, bowlPace:0.35, bowlPerformance:'ground'  },
+  'bowl-warm':      { mode:2, bowlFreq:341, bowlSustain:0.38, bowlVol:0.72, bowlPace:0.45, bowlPerformance:'warm'    },
+  'bowl-journey':   { mode:2, bowlFreq:256, bowlSustain:0.25, bowlVol:0.70, bowlPace:0.60, bowlPerformance:'journey' },
+  'cocoon':         { mode:4, psStroke:0.18, psPuff:0.20, psRustle:0.16, psCrackle:0.90, psPace:0.28, psVol:0.72 },
+  'night-presence': { mode:4, psStroke:0.34, psPuff:0.40, psRustle:0.32, psCrackle:1.80, psPace:0.58, psVol:0.60 },
 };
 
 export const BRAINWAVES = [

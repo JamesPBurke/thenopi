@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a1e">
+  <title>Thenopi — Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="text-white antialiased">
+
+  <div class="max-w-md mx-auto px-4 pt-8 pb-14">
+
+    <!-- Header -->
+    <header class="mb-8">
+      <div class="flex items-center justify-between mb-1">
+        <a href="index.html"
+          class="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-70 active:opacity-50"
+          style="color:#a78bfa;">
+          ← Thenopi
+        </a>
+      </div>
+      <h1 class="text-3xl font-bold tracking-tight mt-3"
+        style="background:linear-gradient(135deg,#c4b5fd,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+        Guide
+      </h1>
+      <p class="text-gray-500 text-sm mt-1">Navigate modes below to read their documentation.</p>
+    </header>
+
+    <!-- Mode Tabs — mirrors the main app's mode switcher -->
+    <div class="flex gap-1 mb-5 p-1 rounded-2xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <button class="doc-tab flex-1 py-2.5 rounded-xl text-sm font-medium" data-tab="1">🎵 Binaural</button>
+      <button class="doc-tab flex-1 py-2.5 rounded-xl text-sm font-medium" data-tab="2">🔔 Bowls</button>
+      <button class="doc-tab flex-1 py-2.5 rounded-xl text-sm font-medium" data-tab="3">👂 ASMR</button>
+      <button class="doc-tab flex-1 py-2.5 rounded-xl text-sm font-medium" data-tab="4">🫧 Nearfield</button>
+    </div>
+
+
+    <!-- ── BINAURAL ─────────────────────────────────────────────────────── -->
+
+    <div class="doc-section space-y-3" data-section="1">
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">What are binaural beats?</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          When two slightly different tones are played into each ear — say, 200 Hz in the left and 206 Hz in the right — the brain perceives a rhythmic pulsing at the difference: 6 Hz. This isn't an acoustic phenomenon; it happens entirely inside the brain's auditory processing. Research suggests these perceived pulses can gently guide brainwave activity toward matching frequencies, a process called entrainment. The effect is subtle and cumulative — not a switch, but a gentle lean in a direction.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          Binaural beats only work with headphones. Speakers mix the two channels in the air before they reach your ears, canceling the effect entirely.
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Beat Frequency & Brainwave States</h2>
+        <p class="text-sm leading-relaxed mb-4" style="color:#9ca3af;">
+          The beat frequency is the difference between the two tones — the actual pulse the brain perceives. Set it to match the mental state you want to encourage.
+        </p>
+        <div class="space-y-2">
+          <div class="flex items-start gap-3 p-3 rounded-xl" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);">
+            <span class="text-xs font-bold mt-0.5 w-16 shrink-0" style="color:#93c5fd;">Delta<br>0.5–4 Hz</span>
+            <p class="text-xs" style="color:#9ca3af;">Deep, dreamless sleep. The brain's slowest rhythm — restorative, deeply unconscious. Useful for sleep induction or very deep meditation.</p>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-xl" style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);">
+            <span class="text-xs font-bold mt-0.5 w-16 shrink-0" style="color:#c4b5fd;">Theta<br>4–8 Hz</span>
+            <p class="text-xs" style="color:#9ca3af;">The edge of sleep — vivid imagery, creativity, the hypnagogic state just before unconsciousness. Strong for meditation and daydreaming.</p>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-xl" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);">
+            <span class="text-xs font-bold mt-0.5 w-16 shrink-0" style="color:#86efac;">Alpha<br>8–14 Hz</span>
+            <p class="text-xs" style="color:#9ca3af;">Relaxed alertness. Calm but aware. Good for stress relief, light focus, and the quiet after meditation.</p>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-xl" style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2);">
+            <span class="text-xs font-bold mt-0.5 w-16 shrink-0" style="color:#fde047;">Beta<br>14–30 Hz</span>
+            <p class="text-xs" style="color:#9ca3af;">Active, alert, engaged. Normal waking consciousness and concentrated thought. Use for focus, productivity, and problem-solving.</p>
+          </div>
+          <div class="flex items-start gap-3 p-3 rounded-xl" style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);">
+            <span class="text-xs font-bold mt-0.5 w-16 shrink-0" style="color:#fdba74;">Gamma<br>30–40 Hz</span>
+            <p class="text-xs" style="color:#9ca3af;">Peak cognitive performance. Associated with intense focus and information binding across the brain. High-effort mental states.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Carrier Frequency</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          The base pitch of the tones, before the beat difference is applied. It doesn't affect the entrainment frequency, but it does affect comfort. Lower carriers (150–220 Hz) feel warmer, less fatiguing, and blend better with low-frequency noise like brown noise. Higher carriers (300–400 Hz) feel brighter and cut through more clearly. For sleep, stay below 200 Hz.
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Soundscapes</h2>
+        <p class="text-sm leading-relaxed mb-4" style="color:#9ca3af;">
+          The three noise types create a continuous background layer that masks distracting sounds and gives the binaural beats something to sit against.
+        </p>
+        <div class="space-y-3">
+          <div>
+            <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">White Noise</p>
+            <p class="text-xs" style="color:#9ca3af;">All frequencies at equal intensity — a sharp, hissing sound. Very effective at masking but fatiguing over long sessions. Use sparingly, or not at all for sleep.</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Pink Noise</p>
+            <p class="text-xs" style="color:#9ca3af;">Lower frequencies are louder, rolling off gradually upward. Sounds like steady rainfall or a gentle stream. More natural and less fatiguing than white noise. A good general-purpose background.</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Brown Noise</p>
+            <p class="text-xs" style="color:#9ca3af;">Even heavier emphasis on bass frequencies. Deep, rumbling — like ocean waves, distant thunder, or a very large fan. Very restful, particularly for sleep.</p>
+          </div>
+        </div>
+        <div class="mt-4 p-3 rounded-xl" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.15);">
+          <p class="text-xs" style="color:#a78bfa;">The <span class="font-semibold">−</span> and <span class="font-semibold">+</span> buttons at the top of the Soundscapes section scale all three noise levels together proportionally, so you can raise or lower the overall noise floor without disturbing the balance you've set between them.</p>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">3D Movement</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          A slow oscillator gently sweeps the noise around your head using binaural HRTF processing. At low intensity the movement is barely perceptible — more like a living, breathing environment than a noticeable sweep. At higher intensity the motion becomes more pronounced. For sleep, keep this low or off. For active focus, a moderate level can help maintain presence.
+        </p>
+      </div>
+
+    </div><!-- /binaural -->
+
+
+    <!-- ── SINGING BOWLS ────────────────────────────────────────────────── -->
+
+    <div class="doc-section space-y-3" data-section="2" hidden>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Two bowls, always together</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          Two bowls play together at all times. Neither is primary. They find their harmonic relationship from within the chosen experience and move through a progression of intervals — slowly, without announcement — over the course of a session.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          Silence is rare. One bowl is always still ringing when the other begins. The transitions happen inside the sound, not in the gaps between sounds. When the harmonic relationship shifts, the listener may not notice it consciously — they only feel that something has moved.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          Each bowl blooms over roughly half a second, reaches full voice, then releases slowly — sometimes over a minute. The decay is long and gentle by design. Your nervous system has time to follow the sound all the way down toward stillness.
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Choosing an Experience</h2>
+        <p class="text-sm leading-relaxed mb-4" style="color:#9ca3af;">
+          Each experience sets all the bowl parameters at once — frequency, ring duration, pace, and harmonic arc. You can adjust the sliders after selecting one.
+        </p>
+        <div class="space-y-3">
+          <div class="p-3 rounded-xl" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);">
+            <p class="text-sm font-semibold mb-1" style="color:#a5b4fc;">Drift</p>
+            <p class="text-xs" style="color:#9ca3af;">For floating away or falling asleep. Uses wide, open intervals — octave and fifth — that feel spacious and unresolved. Very slow transitions. The pace is set very low by default; the experience is long, unhurried, and spacious.</p>
+          </div>
+          <div class="p-3 rounded-xl" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);">
+            <p class="text-sm font-semibold mb-1" style="color:#67e8f9;">Ground</p>
+            <p class="text-xs" style="color:#9ca3af;">For anxiety, restlessness, or mental chatter. The harmonic intervals — fifth and fourth — are foundational and stable. Good when you need something to hold onto. Default experience.</p>
+          </div>
+          <div class="p-3 rounded-xl" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);">
+            <p class="text-sm font-semibold mb-1" style="color:#86efac;">Warm</p>
+            <p class="text-xs" style="color:#9ca3af;">For comfort, sadness, or needing to feel held. The arc drifts from open intervals toward thirds — warmer, more tender — then returns. Good for emotional settling.</p>
+          </div>
+          <div class="p-3 rounded-xl" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);">
+            <p class="text-sm font-semibold mb-1" style="color:#d8b4fe;">Journey</p>
+            <p class="text-xs" style="color:#9ca3af;">For longer meditation sessions. The complete arc: beginning with the most open and consonant intervals, moving through richer and more complex combinations in the middle, returning to simplicity near the end. The most variety of any experience.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Ring</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          How long each bowl resonates after it is struck. The display shows the approximate duration in real time.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          At short settings the sounds decay quickly, the room feels lighter, and there is more variation in the experience. At long settings — a minute or more — the bowls sustain deeply, overlap richly, and the experience becomes more continuous and immersive. Most people find a ring of 30–90 seconds deeply relaxing.
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Pace</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          How often any transition occurs — not the rate of strikes, but the density of change. At <span class="font-medium" style="color:#ddd6fe;">Still</span>, long periods pass where the same harmonization sustains unchanged. At <span class="font-medium" style="color:#ddd6fe;">Flowing</span>, the intervals shift more frequently, though always gently. Both ends of the range are deeply relaxed.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          The display shows approximately how many seconds pass between bowl entries, which helps calibrate the pace to your environment and attention.
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Bowl Frequency & Chakra</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          The root pitch of the session. The second bowl always sounds a harmonic interval above the first; the interval is determined by the experience arc. As you move the frequency slider, the chakra badge updates to show the traditional correspondence — C for root, D for sacral, and so on up to B for crown.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          These correspondences are traditional rather than physiological. The frequency you choose will affect the timbre and weight of the sound — lower frequencies feel more grounded, higher ones more crystalline.
+        </p>
+      </div>
+
+    </div><!-- /bowls -->
+
+
+    <!-- ── ASMR ─────────────────────────────────────────────────────────── -->
+
+    <div class="doc-section" data-section="3" hidden>
+      <div class="card p-6 text-center">
+        <div class="text-5xl mb-4">👂</div>
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Binaural Ear Cleaning</h2>
+        <p class="text-sm leading-relaxed mb-4" style="color:#9ca3af;">
+          This mode will simulate ASMR-style binaural ear care — ear picks, cotton swabs, soft brushes, and puffs of air moving closely around the listener's head, positioned via HRTF spatial audio.
+        </p>
+        <p class="text-sm leading-relaxed mb-5" style="color:#9ca3af;">
+          Producing organic, granular textures that trigger the ASMR response requires either recorded audio samples or a level of synthesis complexity not yet implemented. The mode will arrive in a future update.
+        </p>
+        <p class="text-xs" style="color:#4b5563;">In the meantime, the Nearfield mode (🫧) offers a gentler, synthesized near-ear experience.</p>
+      </div>
+    </div><!-- /asmr -->
+
+
+    <!-- ── NEARFIELD ────────────────────────────────────────────────────── -->
+
+    <div class="doc-section space-y-3" data-section="4" hidden>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">What is Nearfield?</h2>
+        <p class="text-sm leading-relaxed" style="color:#9ca3af;">
+          Nearfield creates the sensation of gentle sounds occurring very close to your ears — not coming from any particular direction, but near. The sounds are positioned using HRTF binaural processing, so each event feels like it originates in a specific place around the ear rather than inside your head.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          It is inspired by the experience of gentle near-ear attention — a soft stroke, a brief puff of air, the quiet crinkle of something close. It is not a medical simulation. A dedicated Ear Care mode may be added in a future version.
+        </p>
+        <p class="text-sm leading-relaxed mt-3" style="color:#9ca3af;">
+          Each gesture is positioned near one ear — left or right, chosen at random — and sounds never sweep dramatically across from side to side. The 3D impression comes from HRTF processing: the subtle spectral coloring that occurs when sound reaches your ears from different angles and distances.
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">The Four Elements</h2>
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(139,92,246,0.2);color:#c4b5fd;">Stroke</span>
+              <span class="text-xs" style="color:#4b5563;">3–5.5 seconds</span>
+            </div>
+            <p class="text-xs" style="color:#9ca3af;">A warm, low-frequency sweep tracing an arc around one ear — from above-front to below-behind, or some variation. Soft and lingering, like a fingertip or a soft brush. The warmth comes from its low-pass character: it carries only the lower frequencies of the noise source.</p>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(6,182,212,0.2);color:#67e8f9;">Puff</span>
+              <span class="text-xs" style="color:#4b5563;">0.35–0.8 seconds</span>
+            </div>
+            <p class="text-xs" style="color:#9ca3af;">A brief, airy burst near the ear canal. High-pass filtered — only the upper frequencies — giving it an airy, almost electric quality. Short, punchy, and clearly distinct from the other elements.</p>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(34,197,94,0.2);color:#86efac;">Rustle</span>
+              <span class="text-xs" style="color:#4b5563;">3.5–7 seconds</span>
+            </div>
+            <p class="text-xs" style="color:#9ca3af;">A crisp, high-frequency texture centered around 5.8 kHz, drifting slowly. Longer than a puff, sustained like a stroke, but spectrally bright — like hair or fabric shifting close by. Positioned slightly further from the head than the other elements for a clearer HRTF impression.</p>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(249,115,22,0.2);color:#fdba74;">Crackle</span>
+              <span class="text-xs" style="color:#4b5563;">3–10 ms each, several per second</span>
+            </div>
+            <p class="text-xs" style="color:#9ca3af;">Very brief micro-pops, each only a few milliseconds, occurring several times per second. The primary ongoing texture of the mode — a subtle, continuous aliveness. The crackle slider range extends above 100% because this element is intentionally prominent.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Controls</h2>
+        <div class="space-y-3">
+          <div>
+            <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Effect Levels (Stroke / Puff / Rustle / Crackle)</p>
+            <p class="text-xs" style="color:#9ca3af;">Each element has its own level slider. Crackle defaults higher than the others and its slider extends past 100% — this is intentional. The crackle is meant to be the dominant texture. Set the others to taste around it.</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Pace</p>
+            <p class="text-xs" style="color:#9ca3af;">Controls how frequently gestures occur. At low pace, events arrive rarely with comfortable silence between. At high pace, the streams overlap more continuously and the experience feels busier. All four elements scale together.</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium mb-1" style="color:#ddd6fe;">Volume</p>
+            <p class="text-xs" style="color:#9ca3af;">The master output for this mode. Always starts at 15% when you switch to Nearfield — bring it up gradually.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="text-lg font-semibold mb-3" style="color:#ddd6fe;">Presets</h2>
+        <div class="space-y-3">
+          <div class="p-3 rounded-xl" style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);">
+            <p class="text-sm font-semibold mb-1" style="color:#f9a8d4;">🫧 Cocoon</p>
+            <p class="text-xs" style="color:#9ca3af;">Subtle, slow, enveloping. All gesture levels are low; crackle is present but quiet. Events arrive rarely. For deep relaxation or sleep accompaniment.</p>
+          </div>
+          <div class="p-3 rounded-xl" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);">
+            <p class="text-sm font-semibold mb-1" style="color:#a5b4fc;">🌙 Night Presence</p>
+            <p class="text-xs" style="color:#9ca3af;">More active, more present. Higher gesture levels and a faster pace. Crackle is noticeably more prominent. For a more engaging near-ear experience.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /nearfield -->
+
+
+    <!-- General notes -->
+    <div class="mt-4 p-4 rounded-2xl text-center" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+      <p class="text-xs" style="color:#374151;">All modes work best with stereo headphones &bull; Volume always starts at 15% when switching modes &bull; Settings save automatically</p>
+    </div>
+
+  </div>
+
+  <script>
+    const tabs     = document.querySelectorAll('.doc-tab');
+    const sections = document.querySelectorAll('.doc-section');
+
+    function showTab(n) {
+      tabs.forEach(t => {
+        const active = Number(t.dataset.tab) === n;
+        t.style.background  = active ? 'linear-gradient(135deg,#4c1d95,#7c3aed)' : 'transparent';
+        t.style.color       = active ? '#fff' : 'rgba(255,255,255,0.45)';
+        t.style.boxShadow   = active ? '0 0 14px rgba(124,58,237,0.35)' : 'none';
+        t.setAttribute('aria-pressed', String(active));
+      });
+      sections.forEach(s => {
+        s.hidden = Number(s.dataset.section) !== n;
+      });
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => showTab(Number(t.dataset.tab))));
+    showTab(1);
+  </script>
+
+</body>
+</html>

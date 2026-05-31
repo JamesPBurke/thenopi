@@ -30,12 +30,21 @@
   <div class="max-w-md mx-auto px-4 pt-8 pb-14">
 
     <!-- Header -->
-    <header class="text-center mb-8">
-      <h1 class="text-4xl font-bold tracking-tight"
-        style="background:linear-gradient(135deg,#c4b5fd,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-        Thenopi
-      </h1>
-      <p class="text-gray-500 text-sm mt-1">Relaxation Audio Engine</p>
+    <header class="mb-8">
+      <div class="flex items-start justify-between">
+        <div>
+          <h1 class="text-4xl font-bold tracking-tight"
+            style="background:linear-gradient(135deg,#c4b5fd,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+            Thenopi
+          </h1>
+          <p class="text-gray-500 text-sm mt-1">Relaxation Audio Engine</p>
+        </div>
+        <a href="about.html"
+          class="mt-1 px-3 py-1.5 rounded-xl text-xs font-medium transition-all active:scale-95"
+          style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#a78bfa;">
+          Guide
+        </a>
+      </div>
     </header>
 
     <!-- Play Button -->
@@ -60,7 +69,7 @@
         👂 ASMR
       </button>
       <button class="mode-btn flex-1 py-2.5 rounded-xl text-sm font-medium" data-mode="4" aria-pressed="false">
-        🫧 Presence
+        🫧 Nearfield
       </button>
     </div>
 
@@ -131,6 +140,18 @@
       <div class="section-body open" id="soundscape-body">
         <div class="px-4 pb-5 space-y-5">
 
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium uppercase tracking-wider" style="color:#6b7280;">Overall Level</span>
+            <div class="flex gap-2">
+              <button id="soundscape-minus"
+                class="w-8 h-8 rounded-lg text-base font-semibold flex items-center justify-center transition-all active:scale-95"
+                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#c4b5fd;">−</button>
+              <button id="soundscape-plus"
+                class="w-8 h-8 rounded-lg text-base font-semibold flex items-center justify-center transition-all active:scale-95"
+                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#c4b5fd;">+</button>
+            </div>
+          </div>
+
           <div>
             <div class="flex justify-between items-center mb-2">
               <label for="s-white" class="text-sm text-gray-300 font-medium">White Noise</label>
@@ -193,6 +214,47 @@
             </span>
           </div>
 
+          <!-- Performance selector -->
+          <div>
+            <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#6b7280;">Choose an experience — sets all parameters</p>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button class="perf-btn py-3 px-3 rounded-xl text-left transition-all active:scale-95" data-perf="drift"
+                style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
+                <span class="block text-sm font-semibold">Drift</span>
+                <span class="block text-xs mt-0.5 opacity-60">Open space &amp; sleep · very slow</span>
+              </button>
+              <button class="perf-btn py-3 px-3 rounded-xl text-left transition-all active:scale-95" data-perf="ground"
+                style="background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.55);color:#c4b5fd;">
+                <span class="block text-sm font-semibold">Ground</span>
+                <span class="block text-xs mt-0.5 opacity-60">Stable &amp; settled · calm</span>
+              </button>
+              <button class="perf-btn py-3 px-3 rounded-xl text-left transition-all active:scale-95" data-perf="warm"
+                style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
+                <span class="block text-sm font-semibold">Warm</span>
+                <span class="block text-xs mt-0.5 opacity-60">Held &amp; soothed · gentle</span>
+              </button>
+              <button class="perf-btn py-3 px-3 rounded-xl text-left transition-all active:scale-95" data-perf="journey"
+                style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
+                <span class="block text-sm font-semibold">Journey</span>
+                <span class="block text-xs mt-0.5 opacity-60">Full arc meditation · flowing</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Pace -->
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-bowl-pace" class="text-sm text-gray-300 font-medium">Pace</label>
+              <div class="flex items-baseline gap-2">
+                <span id="d-bowl-pace" class="text-sm font-mono" style="color:#a78bfa;">Calm</span>
+                <span id="d-bowl-pace-real" class="text-xs" style="color:#4b5563;">~22 s between bowls</span>
+              </div>
+            </div>
+            <input type="range" id="s-bowl-pace" min="0" max="1" value="0.35" step="0.01">
+            <div class="flex justify-between text-xs text-gray-700 mt-1"><span>Still</span><span>How often harmonies shift</span><span>Flowing</span></div>
+          </div>
+
+          <!-- Bowl frequency -->
           <div>
             <div class="flex justify-between items-center mb-2">
               <label for="s-bowl-freq" class="text-sm text-gray-300 font-medium">Bowl Frequency</label>
@@ -205,79 +267,26 @@
             </div>
           </div>
 
+          <!-- Ring -->
           <div>
             <div class="flex justify-between items-center mb-2">
-              <label for="s-bowl-interval" class="text-sm text-gray-300 font-medium">Strike Interval</label>
-              <span id="d-bowl-interval" class="text-sm font-mono" style="color:#a78bfa;">8.0 s</span>
+              <label for="s-bowl-sustain" class="text-sm text-gray-300 font-medium">Ring</label>
+              <div class="flex items-baseline gap-2">
+                <span id="d-bowl-sustain" class="text-sm font-mono" style="color:#a78bfa;">35%</span>
+                <span id="d-bowl-sustain-real" class="text-xs" style="color:#4b5563;">~58 s</span>
+              </div>
             </div>
-            <input type="range" id="s-bowl-interval" min="5" max="30" value="8" step="0.5">
-            <div class="flex justify-between text-xs text-gray-700 mt-1">
-              <span>5 s</span><span>Average pace — timing varies naturally</span><span>30 s</span>
-            </div>
+            <input type="range" id="s-bowl-sustain" min="0.1" max="1" value="0.35" step="0.01">
+            <p class="text-xs text-gray-700 mt-1">Duration of each bowl's resonance</p>
           </div>
 
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <label for="s-bowl-sustain" class="text-sm text-gray-300 font-medium">Sustain</label>
-              <span id="d-bowl-sustain" class="text-sm font-mono" style="color:#a78bfa;">70%</span>
-            </div>
-            <input type="range" id="s-bowl-sustain" min="0.1" max="1" value="0.7" step="0.01">
-            <p class="text-xs text-gray-700 mt-1">How long the resonance rings after each strike</p>
-          </div>
-
+          <!-- Volume -->
           <div>
             <div class="flex justify-between items-center mb-2">
               <label for="s-bowl-vol" class="text-sm text-gray-300 font-medium">Volume</label>
               <span id="d-bowl-vol" class="text-sm font-mono" style="color:#a78bfa;">70%</span>
             </div>
             <input type="range" id="s-bowl-vol" min="0" max="1" value="0.7" step="0.01">
-          </div>
-
-          <!-- ── Second Bowl ── -->
-          <div class="border-t pt-4" style="border-color:rgba(255,255,255,0.08);">
-            <div class="flex items-center justify-between mb-3">
-              <div>
-                <p class="text-sm text-gray-300 font-medium">Second Bowl</p>
-                <p class="text-xs text-gray-600 mt-0.5">Add a harmonizing bowl above the first</p>
-              </div>
-              <button id="bowl2-toggle" aria-pressed="false"
-                class="px-4 py-1.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
-                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#c4b5fd;min-width:3.5rem;">
-                Off
-              </button>
-            </div>
-
-            <div id="bowl2-interval-section" hidden>
-              <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#6b7280;">Harmonic Interval</p>
-              <div class="grid grid-cols-4 gap-1.5 mb-3">
-                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="1.25"
-                  style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
-                  <span class="block text-xs font-semibold">M3</span>
-                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">5:4</span>
-                </button>
-                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="1.333"
-                  style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
-                  <span class="block text-xs font-semibold">P4</span>
-                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">4:3</span>
-                </button>
-                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="1.5"
-                  style="background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.55);color:#c4b5fd;">
-                  <span class="block text-xs font-semibold">P5</span>
-                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">3:2</span>
-                </button>
-                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="2"
-                  style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
-                  <span class="block text-xs font-semibold">Oct</span>
-                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">2:1</span>
-                </button>
-              </div>
-              <div class="flex justify-center">
-                <span id="bowl2-chakra-pill" class="px-3 py-1 rounded-full text-xs"
-                  style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;">
-                  Bowl 2: —
-                </span>
-              </div>
-            </div>
           </div>
 
         </div>
@@ -300,13 +309,13 @@
       </div>
     </div>
 
-    <!-- ── MODE 4: Personal Space Audio ─────────────────────────────── -->
+    <!-- ── MODE 4: Nearfield ────────────────────────────────────────── -->
 
     <div class="card mb-3" data-mode-section="4" hidden>
       <button class="section-toggle w-full p-4 flex items-center justify-between" aria-expanded="true" data-target="ps-body">
         <div class="flex items-center gap-3">
           <span class="text-lg">🫧</span>
-          <span class="font-semibold" style="color:#ddd6fe;">Personal Space</span>
+          <span class="font-semibold" style="color:#ddd6fe;">Nearfield</span>
         </div>
         <svg class="chevron w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -315,38 +324,53 @@
       <div class="section-body open" id="ps-body">
         <div class="px-4 pb-5 space-y-5">
 
-          <div class="flex justify-center">
-            <span id="ps-mood-pill" class="badge-animate px-4 py-1 rounded-full text-xs font-semibold"
-              style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.35);color:rgb(168,85,247);">
-              Present — Personal space
-            </span>
+          <p class="text-xs leading-relaxed" style="color:#4b5563;">
+            Gentle strokes, soft air puffs, and delicate rustles — each positioned near one ear via binaural HRTF. Gestures occur independently at varied intervals.
+          </p>
+
+          <div class="space-y-3">
+            <p class="text-xs font-medium uppercase tracking-wider" style="color:#6b7280;">Effect Levels</p>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="s-ps-stroke" class="text-sm text-gray-300">Stroke</label>
+                <span id="d-ps-stroke" class="text-sm font-mono" style="color:#a78bfa;">28%</span>
+              </div>
+              <input type="range" id="s-ps-stroke" min="0" max="1" value="0.28" step="0.01">
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="s-ps-puff" class="text-sm text-gray-300">Puff</label>
+                <span id="d-ps-puff" class="text-sm font-mono" style="color:#a78bfa;">32%</span>
+              </div>
+              <input type="range" id="s-ps-puff" min="0" max="1" value="0.32" step="0.01">
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="s-ps-rustle" class="text-sm text-gray-300">Rustle</label>
+                <span id="d-ps-rustle" class="text-sm font-mono" style="color:#a78bfa;">26%</span>
+              </div>
+              <input type="range" id="s-ps-rustle" min="0" max="1" value="0.26" step="0.01">
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="s-ps-crackle" class="text-sm text-gray-300">Crackle</label>
+                <span id="d-ps-crackle" class="text-sm font-mono" style="color:#a78bfa;">28%</span>
+              </div>
+              <input type="range" id="s-ps-crackle" min="0" max="2" value="1.4" step="0.01">
+            </div>
           </div>
 
           <div>
             <div class="flex justify-between items-center mb-2">
-              <label for="s-ps-proximity" class="text-sm text-gray-300 font-medium">Proximity</label>
-              <span id="d-ps-proximity" class="text-sm font-mono" style="color:#a78bfa;">0.12</span>
+              <label for="s-ps-pace" class="text-sm text-gray-300 font-medium">Pace</label>
+              <span id="d-ps-pace" class="text-sm font-mono" style="color:#a78bfa;">Calm</span>
             </div>
-            <input type="range" id="s-ps-proximity" min="0.05" max="0.4" value="0.12" step="0.01">
-            <div class="flex justify-between text-xs text-gray-700 mt-1"><span>Very Close</span><span>Wider</span></div>
-          </div>
-
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <label for="s-ps-warmth" class="text-sm text-gray-300 font-medium">Warmth</label>
-              <span id="d-ps-warmth" class="text-sm font-mono" style="color:#a78bfa;">800 Hz</span>
-            </div>
-            <input type="range" id="s-ps-warmth" min="400" max="2000" value="800" step="10">
-            <div class="flex justify-between text-xs text-gray-700 mt-1"><span>Enveloping</span><span>Airy</span></div>
-          </div>
-
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <label for="s-ps-movespeed" class="text-sm text-gray-300 font-medium">Drift Speed</label>
-              <span id="d-ps-movespeed" class="text-sm font-mono" style="color:#a78bfa;">40%</span>
-            </div>
-            <input type="range" id="s-ps-movespeed" min="0" max="1" value="0.4" step="0.01">
-            <p class="text-xs text-gray-700 mt-1">Speed of the imperceptible micro-drift in position</p>
+            <input type="range" id="s-ps-pace" min="0" max="1" value="0.5" step="0.01">
+            <div class="flex justify-between text-xs text-gray-700 mt-1"><span>Rare</span><span>Frequent</span></div>
           </div>
 
           <div>
@@ -397,25 +421,7 @@
           </div>
 
           <div class="border-t pt-3" style="border-color:rgba(255,255,255,0.06);">
-            <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#4b5563;">Singing Bowls</p>
-            <div class="grid grid-cols-2 gap-2">
-              <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="heart-bowl"
-                style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#86efac;">
-                💚 Heart Bowl
-              </button>
-              <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="crown-bowl"
-                style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#d8b4fe;">
-                💜 Root + Octave
-              </button>
-              <button class="preset-btn col-span-2 py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="root-harmony"
-                style="background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);color:#67e8f9;">
-                🎵 Root + Fifth (C &amp; G)
-              </button>
-            </div>
-          </div>
-
-          <div class="border-t pt-3" style="border-color:rgba(255,255,255,0.06);">
-            <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#4b5563;">Personal Space</p>
+            <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#4b5563;">Nearfield</p>
             <div class="grid grid-cols-2 gap-2">
               <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="cocoon"
                 style="background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);color:#f9a8d4;">

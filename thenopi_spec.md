@@ -1,21 +1,16 @@
-# **Product Specification: "Thenopi" \- Browser-Based Relaxation Audio Engine**
+# Product Specification: "Thenopi" — Browser-Based Relaxation Audio Engine
 
-## **1\. Executive Summary**
+## 1. Executive Summary
 
-"Thenopi" is a client-side, static web application that generates customizable audio environments to aid in relaxation, sleep, focus, and meditation. It uses the browser's native Web Audio API to synthesize four distinct audio modes: binaural beats with 3D spatial noise, Tibetan singing bowls, a near-field personal space soundscape, and (planned) a binaural ASMR ear cleaning experience. The application prioritizes a mobile-first, elegant UI and is optimized for headphone use.
+Thenopi is a client-side static web application that generates customizable audio environments to aid in relaxation, sleep, focus, and meditation. It uses the browser's native Web Audio API to synthesize four distinct audio modes: binaural beats with 3D spatial noise, Tibetan singing bowls, a near-field personal soundscape (Nearfield), and a planned binaural ASMR ear cleaning experience. The application prioritizes a mobile-first, elegant UI and is optimized for headphone use.
 
-## **2\. Target Platforms & Technical Architecture**
+## 2. Target Platforms & Technical Architecture
 
-* **Architecture:** Static Web Application (Single Page Application). No backend server, no build step required.
-* **Hosting:** Any static file server (GitHub Pages, Netlify, Vercel, AWS S3). **Local development requires a web server** (`npx serve .` or `python3 -m http.server`) — ES modules do not load over `file://`.
-* **Core Technologies:**
-  * HTML5 / CSS3 with Tailwind CSS (CDN).
-  * **Vanilla JavaScript ES Modules** — multi-file, no bundler. Entry point: `js/main.js` loaded as `<script type="module">`.
-  * **Web Audio API:** All sound synthesis, routing, and spatialization.
-  * **Media Session API:** Mobile OS lock screen integration and hardware media controls.
-  * **Web Storage API (localStorage):** Persistent user preferences.
+- **Architecture:** Static Web Application (SPA). No backend server, no build step.
+- **Hosting:** Any static file server (GitHub Pages, Netlify, etc.). Local dev requires a web server — ES modules do not load over `file://`.
+- **Core Technologies:** HTML5, CSS3, Tailwind CSS (CDN), Vanilla JS ES Modules, Web Audio API, Media Session API, localStorage.
 
-### **2.1 File Structure**
+### 2.1 File Structure
 
 ```
 index.html                  — HTML shell + all mode UI sections
@@ -26,154 +21,178 @@ js/
                               mutable state object, presetStore, load/persist
   ui.js                     — All DOM rendering and event wiring
   audio/
-    core.js                 — AudioContext lifecycle, mode switching, keepAlive,
-                              mediaSession, togglePlay
+    core.js                 — AudioContext lifecycle, outputGain, mode switching,
+                              keepAlive, mediaSession, togglePlay (with fade)
     binaural.js             — Mode 1 audio engine
     bowls.js                — Mode 2 audio engine
-    earclean.js             — Mode 3 audio engine (placeholder, all no-ops)
-    personalspace.js        — Mode 4 audio engine
+    earclean.js             — Mode 3 placeholder (all no-ops)
+    personalspace.js        — Mode 4 audio engine (Nearfield)
 ```
 
-### **2.2 Audio Mode Architecture**
+### 2.2 Audio Mode Architecture
 
-All mode modules export an identical interface, dispatched by `core.js`:
+All mode modules export an identical interface dispatched by `core.js`:
 
 ```js
-build(ctx, state)      // create and connect Web Audio nodes
-teardown()             // stop sources, disconnect nodes, reset module state
-applyState(state, ctx) // smooth live parameter updates (setTargetAtTime)
-startTimer(state)      // start LFOs / strike timers (called on play)
-stopTimer()            // clear timers (called on pause or before teardown)
+build(ctx, state, dest)  // create nodes; connect to dest (NOT ctx.destination directly)
+teardown()               // stop sources, disconnect nodes, reset module state
+applyState(state, ctx)   // smooth live parameter updates (setTargetAtTime)
+startTimer(state)        // start LFOs / schedulers (called on play)
+stopTimer()              // clear timers (called on pause or before teardown)
 ```
 
-Mode switch flow: `stopTimer()` → `teardown()` → `build()` → `startTimer()` (if playing). The `AudioContext` stays alive across all mode switches. Loading a preset that belongs to a different mode triggers an automatic mode switch.
+Mode switch flow: `stopTimer()` → `teardown()` → `build()` → `startTimer()` (if playing). The `AudioContext` stays alive across all mode switches.
 
-## **3\. Audio Modes**
+### 2.3 Global Output Gain & Fade
 
-### **3.1 Mode 1: Binaural Beats + Soundscapes** ✅ Implemented
+A single `outputGain` GainNode (`eng.outputGain`) sits between all modes and `ctx.destination`. All mode `build()` functions accept `dest` as their third parameter and connect to it rather than `ctx.destination`.
 
-* **Binaural Beats:** Two sine wave oscillators at slightly different frequencies routed to left and right channels via `ChannelMergerNode`. A brainwave-state badge (Delta / Theta / Alpha / Beta / Gamma) updates as the beat frequency changes.
-  * *Controls:* Carrier Frequency (100–500 Hz), Beat Frequency (0.5–40 Hz), Volume.
-* **Soundscapes:** White, pink, and brown noise generated via buffer manipulation, each routed through an HRTF `PannerNode`. A spatial LFO sweeps the X position to simulate sound orbiting the head.
-  * *Note:* Z axis is held fixed at −1 (directly in front). A circular X/Z orbit was tried and discarded — the HRTF front/back hemisphere transition creates asymmetric spectral coloration that sounds like a whip on the return pass.
-  * *Controls:* Individual volume for white/pink/brown noise, 3D Movement Intensity.
-* **Built-in Presets:** Deep Sleep, Study Focus, Anxiety Relief, Meditation.
+- **Stop:** 1-second linear ramp of `outputGain` to 0, then `ctx.suspend()` at 1.1 s.
+- **Resume during fade:** cancels the ramp, ramps back to 1 over 150 ms.
 
-### **3.2 Mode 2: Tibetan Singing Bowls** ✅ Implemented
+### 2.4 Volume Safety
 
-Fully synthesized. Four oscillators at inharmonic frequency ratios derived from hemispherical shell vibration modes (Bessel function zeros): 1×, 2.756×, 5.404×, 8.933× the fundamental. Each partial has a micro-detune (±2 cents random) for shimmer, and a distinct exponential decay rate — higher partials fade faster, reproducing the signature of a real struck bowl.
+`_safeVol(mode)` in `main.js` resets the active mode's volume state key to 0.15. Called at every entry point where settings change hands: page load, mode switch, preset load, and settings import. The user is never surprised by loud audio; they always bring volume up from 15%.
 
-* **Strike envelope:** 15 ms linear attack → `setTargetAtTime` exponential decay. `bowlSustain` (0–100%) maps to a 1.2–12 s audible decay window.
-* **Badge:** Chakra label (Root C / Sacral D / Solar Plexus E / Heart F / Throat G / Third Eye A / Crown B) updates with bowl frequency.
-* **Controls:** Bowl Frequency (100–600 Hz), Strike Every (2–20 s), Sustain, Volume.
-* **Built-in Presets:** Heart Bowl (341 Hz / F), Crown Bowl (480 Hz / B).
+## 3. Audio Modes
 
-### **3.3 Mode 3: Simulated Binaural Ear Cleaning** ⏳ Placeholder
+### 3.1 Mode 1: Binaural Beats + Soundscapes ✅
 
-ASMR-style spatial audio simulating ear cleaning tools (ear picks, cotton swabs, brushes, air puffs) moving closely around the listener's head via scripted HRTF `PannerNode` position automation.
+**Binaural Beats:** Two sine oscillators at slightly different frequencies routed to L/R channels via `ChannelMergerNode`. A brainwave badge (Delta/Theta/Alpha/Beta/Gamma) updates with beat frequency.
+- Controls: Carrier Frequency (100–500 Hz), Beat Frequency (0.5–40 Hz), Volume.
 
-* **Status: Blocked on audio asset sourcing.** Pure Web Audio synthesis cannot produce the organic, granular textures that trigger the ASMR response. This mode requires either permissively-licensed binaural-ready samples (e.g., CC0 assets from Freesound.org) or original recordings made with in-ear binaural microphones (e.g., Roland CS-10EM). The implementation architecture once assets are sourced is `AudioBufferSourceNode` → HRTF `PannerNode` → scripted position automation, identical to Mode 4's spatial approach.
-* The module slot (`js/audio/earclean.js`), UI card, and mode button are already wired — all exports are no-ops until implementation begins.
+**Soundscapes:** White, pink, and brown noise buffers, each through an HRTF `PannerNode`. A spatial LFO sweeps X position. Z axis fixed at −1 (circular X/Z orbit discarded — HRTF front/back hemisphere transition creates an audible asymmetry on the return pass).
+- Controls: Individual volume for white/pink/brown noise, 3D Movement Intensity.
+- **Proportional ± buttons** at the top of the Soundscapes section scale all three noise volumes together by ×0.80 (−) or ×1.25 (+) per click, maintaining their relative balance.
 
-### **3.4 Mode 4: Personal Space Audio** ✅ Implemented
+**Built-in Presets:** Deep Sleep, Study Focus, Anxiety Relief, Meditation.
 
-Synthesized near-field spatial audio designed to create the sensation of intimate, close-proximity sound positioned just outside the listener's ears.
+### 3.2 Mode 2: Tibetan Singing Bowls ✅ (redesigned)
 
-* **Signal chain:** Pink noise → two parallel paths (low-pass warmth filter + narrow bandpass shimmer at 7 kHz) → mix → breath gain → two HRTF `PannerNode`s at mirrored positions (`±psProximity, y:0, z:−0.05`).
-* **Breath LFO:** `OscillatorNode` at 0.08 Hz (≈12 s period) connected directly to a `GainNode.gain` AudioParam — audio-rate modulation, no `setInterval`. Gain oscillates 0.76–1.0 for a subtle breathing quality.
-* **Drift:** A 50 ms `setInterval` oscillates both panner X positions by ±0.03 units over a 20–40 s period (controlled by Movement Speed). `_currentDrift` is tracked module-internally so position updates from the slider don't snap the drift to zero.
-* **Proximity control:** Maps to the panner X position (0.05–0.4), not `refDistance`. At the panner's fixed distance, most of the `refDistance` range clamps gain to 1.0 with no audible effect; the HRTF coloration from position change is the meaningful variable. `refDistance` is fixed at 0.5.
-* **Badge:** Intimate / Present / Enveloping based on proximity value.
-* **Controls:** Proximity (Very Close → Wider), Warmth (400–2000 Hz low-pass), Drift Speed, Volume.
-* **Built-in Presets:** Cocoon (ultra-close, warm, barely drifting), Night Presence (mid-range, airier, faster drift).
+Two equal, always-present bowl voices. Neither is primary; neither can be disabled. Both always play together, overlapping, with silence rare by design.
 
-## **4\. Shared Features**
+**Signal chain per voice:** 4 inharmonic oscillators (ratios 1×, 2.756×, 5.404×, 8.933×) → individual GainNodes → per-voice beat GainNode (AM LFO 1–4 Hz, ±10%) → masterGain → outputGain.
 
-### **4.1 Mode Switcher**
+**Envelope:**
+- Attack: 600 ms exponential bloom.
+- Decay: `setTargetAtTime(0, ...)` true exponential toward zero.
+- Tail: explicit `setValueAtTime` + `linearRampToValueAtTime(0, ...)` at 6τ prevents browser denormal flush from sounding abrupt.
+- Re-strike blend: reads `gainNode.gain.value` before `cancelScheduledValues` so a new attack blooms from the current level, not from near-zero.
+- Max ring: ~275 s at full Ring slider (τ_fundamental = sustain × 55 s).
 
-Four-button pill switcher (🎵 Binaural / 🔔 Bowls / 👂 ASMR / 🫧 Presence) above the section cards. Switching modes tears down the current audio graph, builds the new one, and restarts timers — all without destroying the `AudioContext`. Mode 3 shows a Coming Soon card with no active audio.
+**Scheduler:**
+- Alternates A → B → A → B. Next bowl enters while previous is still audible.
+- Overlap delay: `−τ × ln(0.20 + pace × 0.35)`, floor = max(τ × 0.25, 3 s).
+- Performance arc advances after 2–4 A+B pairs per harmonic step.
 
-### **4.2 Preset & Settings Management** ✅ Implemented
+**Performance arcs (PERF_ARCS):**
+| Arc | Ratios | Character |
+|---|---|---|
+| drift | 1.5, 2.0 alternating | Open space & sleep, very slow |
+| ground | 1.5, 1.333 alternating | Stable & settled |
+| warm | 1.5 → 1.333 → 1.25 → back | Held & soothed |
+| journey | 2.0 → 1.5 → 1.333 → 1.25 → 1.125 → back | Full arc meditation |
 
-* **Built-in Presets:** 8 total across all modes (4 binaural, 2 bowls, 2 personal space), grouped by mode in the Presets section. Loading a preset from a different mode switches automatically.
-* **Custom Presets:** Save full application state (all mode parameters + current mode) to `localStorage`, named by the user via prompt. Load or delete individually.
-* **Export/Import:** Serialize state to `{ version: 2, state, customPresets }` JSON and trigger a browser download. Import parses the file and applies immediately.
-* **Auto-persist:** Every slider change and preset load writes to `localStorage`. Settings are restored on next visit. Adding new state keys is backwards-compatible — old saves missing new keys fall back to `DEFAULTS`.
+**UX:** "Choose an experience" selector (Drift / Ground / Warm / Journey). Each button loads a complete preset (frequency + ring + pace + vol + arc). No separate bowl presets in the global Presets section.
 
-### **4.3 Background Playback (Mobile Screen-Off)** ✅ Implemented
+**UI labels:** Ring slider shows real-world duration ("~58 s"). Pace slider shows word label (Still/Calm/Gentle/Flowing) + "~X s between bowls".
 
-* A silent oscillator is routed to a `MediaStreamDestination` and played via a hidden `<audio>` element on first user interaction. This registers Thenopi as an active media player with the OS, preventing `AudioContext` suspension when the screen locks.
-* `navigator.mediaSession.metadata` displays app name on the device lock screen. Hardware play/pause/stop keys are bound.
+**State params:** `bowlFreq`, `bowlSustain`, `bowlPace`, `bowlPerformance`, `bowlVol`
 
-### **4.4 User Interface** ✅ Implemented
+**Built-in Presets:** bowl-drift (174 Hz), bowl-ground (256 Hz), bowl-warm (341 Hz), bowl-journey (256 Hz).
 
-* Dark mode. Deep blues, purples, and soft gradients. Minimalist typography.
-* Custom `<input type="range">` sliders with 24px touch targets and fill-track via CSS custom property.
-* Expandable/collapsible section cards (animated height transition).
-* Mode-specific badge (brainwave state / chakra note / proximity mood) with fade-in animation on change.
-* Headphone reminder modal on first visit (dismissed state saved to `localStorage`).
+### 3.3 Mode 3: Binaural Ear Cleaning ⏳ Placeholder
 
-## **5\. Development Stages**
+ASMR-style spatial audio simulating ear cleaning tools via scripted HRTF PannerNode automation. Blocked on audio asset sourcing. Module slot, UI card, and mode button are wired — all exports are no-ops. See §6.1.
 
-### **Stage 1: Core Audio Engine** ✅ Complete
+### 3.4 Mode 4: Nearfield ✅ (redesigned)
 
-Binaural beat oscillators, `ChannelMergerNode`, play/pause logic, slider-to-AudioParam wiring.
+Renamed from "Personal Space." Button: 🫧 Nearfield. Inspired by near-ear sensation (stroking, puffing, rustling near the ears) but not a medical ear-care simulation — a separate Ear Care mode may be added in future.
 
-### **Stage 2: Noise Generation & 3D Spatialization** ✅ Complete
+**Architecture:** Four independent gesture streams, each: `noiseSrc → filter → gain → HRTF panner → masterGain`. A single looping pink noise buffer (15 s) feeds all four filters.
 
-White/pink/brown noise via buffer generation. HRTF `PannerNode` with X-axis LFO sweep. Z-axis fixed at −1 (circular orbit discarded — see §3.1 note).
+**Gesture types:**
 
-### **Stage 3: UI Implementation & Mobile Optimization** ✅ Complete
+| Type | Filter | Default gain | Duration | Wait between |
+|---|---|---|---|---|
+| stroke | LPF 820 Hz, Q=0.8 | psStroke = 0.28 | 3–5.5 s | 1.5–4.5 s |
+| puff | HPF 2100 Hz, Q=1.1 | psPuff = 0.32 | 0.35–0.8 s | 1.8–5.5 s |
+| rustle | BPF 5800 Hz, Q=1.5 | psRustle = 0.26 | 3.5–7 s | 2–6 s |
+| crackle | BPF 5500 Hz, Q=0.5 | psCrackle = 1.40 | 3–10 ms | 0.04–0.35 s |
 
-Full styled mobile-first UI. Custom sliders. Expandable sections. Mode switcher. All content fits standard mobile viewport.
+Crackle is the primary texture. The crackle gain slider max is 2.0 (not 1.0) to accommodate boosted gain.
 
-*Verification items pending formal audit:*
-* \[ \] Google Lighthouse Accessibility / Best Practices score ≥ 90.
-* \[ \] Touch targets verified at ≥ 44×44 CSS px on device.
-* \[ \] No double-tap zoom on mobile.
+**Envelopes:**
+- stroke/rustle: linear ramp to peak at 40% of duration, linear ramp to 0 at end.
+- puff: 50 ms attack, `setTargetAtTime(0, ...)` exponential decay.
+- crackle: instantaneous onset, `setTargetAtTime(0, ...)` very fast decay.
 
-### **Stage 4: Background Playback Resiliency** ✅ Complete
+**3D Positioning** (expanded for strong HRTF coloration):
+- Gesture chooses left or right ear randomly each time (sign = ±1).
+- Stroke: sweeps from above-front (Y+, Z-) to below-behind (Y-, Z+) of one ear — maximum HRTF arc.
+- Rustle: furthest lateral (X 0.14–0.22) for clearest HRTF coloration.
+- Position updates via `setTargetAtTime` on positionX/Y/Z AudioParams (τ = 0.05 s) for smooth motion.
 
-Silent `MediaStream` keep-alive, `mediaSession` metadata, hardware key bindings.
+**Pace formula:** `waitLeft = rand(min, max) × Math.pow(4, 0.5 − pace)`
+- pace=0: ~2× longer waits; pace=0.5: base rate; pace=1: ~2× shorter.
 
-*Verification items pending live device test:*
-* \[ \] (Critical) iOS Safari: audio continues for ≥15 minutes with screen locked.
-* \[ \] Lock screen shows app title and play/pause controls function.
+**State params:** `psStroke`, `psPuff`, `psRustle`, `psCrackle`, `psPace`, `psVol`
 
-### **Stage 5: State Management & Export** ✅ Complete
+**Built-in Presets:** cocoon (subtle, slow), night-presence (more active).
 
-`localStorage` auto-persist on every change. JSON export (download) and import (file input). Settings restored on page reload. Custom presets with name, save, load, and delete.
+## 4. Shared Features
 
-### **Stage 6: Alternate Audio Modes** ✅ Largely Complete
+### 4.1 Mode Switcher
 
-* \[x\] Mode switcher UI (teardown/build on switch, AudioContext preserved).
-* \[x\] Mode 2: Tibetan Singing Bowls (fully synthesized).
-* \[x\] Mode 4: Personal Space Audio (fully synthesized).
-* \[ \] Mode 3: Binaural Ear Cleaning (architecture wired; blocked on asset sourcing — see §3.3).
+Four-button pill switcher: 🎵 Binaural / 🔔 Bowls / 👂 ASMR / 🫧 Nearfield. Switching tears down current audio graph, builds the new one, restarts timers — AudioContext stays alive. Volume is reset to 15% on every switch.
 
-## **6\. Remaining Work**
+### 4.2 Preset & Settings Management ✅
 
-### **6.1 Mode 3 — Asset Sourcing**
+- **Built-in Presets:** 10 total — 4 binaural, 4 bowls, 2 nearfield. Bowls presets are also the 4 experience buttons; they do not appear separately in the Presets section.
+- **Custom Presets:** Save full state to localStorage, named by user. Load or delete individually.
+- **Export/Import:** JSON download/upload (`{ version: 2, state, customPresets }`). Volume safety applied on import.
+- **Auto-persist:** Every slider change and preset load writes to localStorage.
 
-The only blocker for Mode 3 completion is sourcing or creating permissively-licensed binaural-ready audio samples. Options:
+### 4.3 Background Playback ✅
 
-1. **CC0 samples** from Freesound.org, searched for binaural ear cleaning ASMR recordings.
-2. **Original recordings** using in-ear binaural microphones (e.g., Roland CS-10EM). This produces the highest quality result.
+Silent oscillator → MediaStreamDestination → hidden `<audio>` keeps AudioContext alive on screen lock. `mediaSession` metadata + hardware key bindings.
 
-Once assets are available, implementation follows the same `AudioBufferSourceNode` → HRTF `PannerNode` → scripted position automation pattern already established by Mode 4.
+### 4.4 User Interface ✅
 
-### **6.2 Visualizer**
+- Dark mode. Deep blues and purples. Minimalist typography.
+- Custom range sliders with fill-track CSS custom property.
+- Expandable/collapsible section cards.
+- Mode-specific badge (brainwave / chakra note) with fade-in animation.
+- Headphone reminder modal on first visit.
 
-A slow, pulsing Canvas or WebGL visualizer synced to the active mode's primary frequency (binaural beat frequency in Mode 1; bowl frequency in Mode 2; breath LFO rate in Mode 4).
+## 5. Development Stages
 
-### **6.3 Sleep Timer / Fade-Out**
+### Stages 1–6: Complete ✅
 
-A configurable timer (e.g., 15, 30, 60 minutes) that ramps master volume to zero using `AudioParam.linearRampToValueAtTime`, then pauses playback. Prevents abrupt audio cutoff mid-sleep.
+Core audio engine, noise generation, 3D spatialization, mobile UI, background playback, state management, export/import, Mode 2 (bowls), Mode 4 (Nearfield), global fade system, volume safety, Soundscapes proportional ± controls.
 
-### **6.4 PWA / Offline Support**
+## 6. Remaining Work
 
-A `Service Worker` + `manifest.json` to allow home-screen installation and fully offline playback. Low implementation cost given the app is already entirely static with no external runtime dependencies.
+### 6.1 Mode 3 — Asset Sourcing
 
-### **6.5 Lighthouse Audit & Mobile Device Testing**
+Blocked on permissively-licensed binaural-ready audio samples. Options: CC0 from Freesound.org or original in-ear binaural recordings (e.g., Roland CS-10EM). Once assets are sourced, implementation follows `AudioBufferSourceNode → HRTF PannerNode → scripted position automation`.
 
-Formal verification of Stage 3 and Stage 4 criteria on real iOS and Android devices (see §5 open checkboxes).
+### 6.2 Visualizer
+
+Slow, pulsing Canvas/WebGL visualizer synced to active mode's primary frequency.
+
+### 6.3 Sleep Timer
+
+Configurable fade-out timer (15/30/60 min) using `AudioParam.linearRampToValueAtTime`.
+
+### 6.4 PWA / Offline Support
+
+Service Worker + `manifest.json` for home-screen install and fully offline playback.
+
+### 6.5 Ear Care Mode
+
+A dedicated Mode 4 replacement or addition that more directly simulates ear cleaning/massage using scripted HRTF gestures. Nearfield (current Mode 4) is the precursor.
+
+### 6.6 Lighthouse Audit & Device Testing
+
+Formal verification on real iOS/Android: audio continuity with screen locked, lock screen controls, accessibility score ≥ 90.

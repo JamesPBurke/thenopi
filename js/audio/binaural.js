@@ -3,12 +3,14 @@
 const NOISE_TYPES = ['white', 'pink', 'brown'];
 
 let _ctx = null;
+let _dest = null;
 let _leftOsc = null, _rightOsc = null, _binauralGain = null;
 let _noiseGains = {}, _noisePanners = {};
 let _lfoTimer = null, _lfoPhase = 0;
 
-export function build(ctx, state) {
+export function build(ctx, state, dest) {
   _ctx = ctx;
+  _dest = dest;
   _buildBinaural(state);
   _buildNoise(state);
 }
@@ -19,7 +21,7 @@ function _buildBinaural(state) {
   _binauralGain = ctx.createGain();
   _binauralGain.gain.value = state.binauralVol;
   merger.connect(_binauralGain);
-  _binauralGain.connect(ctx.destination);
+  _binauralGain.connect(_dest);
 
   const lGain = ctx.createGain();
   const rGain = ctx.createGain();
@@ -64,7 +66,7 @@ function _buildNoise(state) {
 
     src.connect(panner);
     panner.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(_dest);
     src.start();
 
     _noisePanners[type] = panner;
