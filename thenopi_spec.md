@@ -2,129 +2,178 @@
 
 ## **1\. Executive Summary**
 
-"Thenopi" (working title) is a client-side, static web application designed to generate customizable audio environments to aid in relaxation, sleep, focus, and meditation. It utilizes the browser's native Web Audio API to synthesize binaural beats, generate noise profiles (white, pink, brown), and simulate 3D spatial audio environments. The application prioritizes a mobile-first, elegant UI and is optimized for headphone use.
+"Thenopi" is a client-side, static web application that generates customizable audio environments to aid in relaxation, sleep, focus, and meditation. It uses the browser's native Web Audio API to synthesize four distinct audio modes: binaural beats with 3D spatial noise, Tibetan singing bowls, a near-field personal space soundscape, and (planned) a binaural ASMR ear cleaning experience. The application prioritizes a mobile-first, elegant UI and is optimized for headphone use.
 
 ## **2\. Target Platforms & Technical Architecture**
 
-* **Architecture:** Static Web Application (Single Page Application). No backend server required for operation.  
-* **Hosting:** Can be hosted on any static file server (GitHub Pages, Netlify, Vercel, AWS S3).  
-* **Core Technologies:**  
-  * HTML5 / CSS3 (Recommendation: Tailwind CSS for rapid, elegant mobile-first styling).  
-  * Vanilla JavaScript or a lightweight framework (e.g., React, Preact, or Vue) for state management.  
-  * **Web Audio API:** For all sound synthesis, routing, and spatialization.  
-  * **Media Session API:** To integrate with mobile OS lock screens and hardware media controls.  
-  * **Web Storage API (localStorage):** For saving user preferences locally.
+* **Architecture:** Static Web Application (Single Page Application). No backend server, no build step required.
+* **Hosting:** Any static file server (GitHub Pages, Netlify, Vercel, AWS S3). **Local development requires a web server** (`npx serve .` or `python3 -m http.server`) — ES modules do not load over `file://`.
+* **Core Technologies:**
+  * HTML5 / CSS3 with Tailwind CSS (CDN).
+  * **Vanilla JavaScript ES Modules** — multi-file, no bundler. Entry point: `js/main.js` loaded as `<script type="module">`.
+  * **Web Audio API:** All sound synthesis, routing, and spatialization.
+  * **Media Session API:** Mobile OS lock screen integration and hardware media controls.
+  * **Web Storage API (localStorage):** Persistent user preferences.
 
-## **3\. Core Features & Functional Requirements**
+### **2.1 File Structure**
 
-### **3.1. Binaural Beats Generator**
+```
+index.html                  — HTML shell + all mode UI sections
+css/style.css               — All styles
+js/
+  main.js                   — Boot, DOMContentLoaded, all event handler callbacks
+  state.js                  — DEFAULTS, BUILTIN_PRESETS, mode badge constants,
+                              mutable state object, presetStore, load/persist
+  ui.js                     — All DOM rendering and event wiring
+  audio/
+    core.js                 — AudioContext lifecycle, mode switching, keepAlive,
+                              mediaSession, togglePlay
+    binaural.js             — Mode 1 audio engine
+    bowls.js                — Mode 2 audio engine
+    earclean.js             — Mode 3 audio engine (placeholder, all no-ops)
+    personalspace.js        — Mode 4 audio engine
+```
 
-* **Mechanism:** Two sine wave oscillators playing slightly different frequencies in the left and right ear channels.  
-* **Controls:**  
-  * **Carrier Frequency (Pitch):** Slider (e.g., 100Hz \- 500Hz).  
-  * **Beat Frequency (Brainwave State):** Slider (0.5Hz \- 40Hz).  
-    * Delta (0.5-4 Hz): Deep sleep.  
-    * Theta (4-8 Hz): Meditation, creativity.  
-    * Alpha (8-14 Hz): Relaxation, light focus.  
-    * Beta (14-30 Hz): Active concentration, alertness.  
-    * Gamma (30-40 Hz): Peak focus.  
-* **Volume Control:** Independent volume slider for the binaural beats layer.
+### **2.2 Audio Mode Architecture**
 
-### **3.2. 3D Spatial Audio (Soundscapes)**
+All mode modules export an identical interface, dispatched by `core.js`:
 
-* **Mechanism:** Utilizing the Web Audio API's PannerNode (configured for HRTF \- Head-Related Transfer Function) to position sounds in a 3D space around the listener's head.  
-* **Elements:** Synthesized ambient sounds or procedurally generated noises.  
-  * *Noise Generators:* Brown noise (deep, rumbling), Pink noise (balanced), White noise (hissing).  
-  * *Spatial Elements:* Slow-moving, panning oscillators or low-pass filtered noise to simulate wind or waves moving around the user.  
-* **Controls:**  
-  * Individual volume controls for different noise colors.  
-  * Spatial depth/movement intensity slider.
+```js
+build(ctx, state)      // create and connect Web Audio nodes
+teardown()             // stop sources, disconnect nodes, reset module state
+applyState(state, ctx) // smooth live parameter updates (setTargetAtTime)
+startTimer(state)      // start LFOs / strike timers (called on play)
+stopTimer()            // clear timers (called on pause or before teardown)
+```
 
-### **3.3. Preset & Settings Management**
+Mode switch flow: `stopTimer()` → `teardown()` → `build()` → `startTimer()` (if playing). The `AudioContext` stays alive across all mode switches. Loading a preset that belongs to a different mode triggers an automatic mode switch.
 
-* **Built-in Presets:** Pre-configured settings for "Deep Sleep," "Study Focus," "Anxiety Relief," and "Meditation."  
-* **Custom Presets:** Ability for users to save their current slider configurations to localStorage.  
-* **Export/Import:**  
-  * **Export:** Serialize current state to a JSON file and trigger a browser download.  
-  * **Import:** File input to upload a JSON settings file and apply it to the audio engine.
+## **3\. Audio Modes**
 
-### **3.4. Background Playback (Mobile Screen-Off)**
+### **3.1 Mode 1: Binaural Beats + Soundscapes** ✅ Implemented
 
-* **Challenge:** Mobile browsers aggressively throttle JavaScript and pause audio when the screen turns off.  
-* **Solution Requirements:**  
-  * Implementation of the **Media Session API** to register the app as an active media player (showing metadata on the lock screen).  
-  * Use of a silent HTML5 \<audio\> element looped in the background. This often tricks iOS/Android into keeping the Web Audio API context alive while the screen is off.
+* **Binaural Beats:** Two sine wave oscillators at slightly different frequencies routed to left and right channels via `ChannelMergerNode`. A brainwave-state badge (Delta / Theta / Alpha / Beta / Gamma) updates as the beat frequency changes.
+  * *Controls:* Carrier Frequency (100–500 Hz), Beat Frequency (0.5–40 Hz), Volume.
+* **Soundscapes:** White, pink, and brown noise generated via buffer manipulation, each routed through an HRTF `PannerNode`. A spatial LFO sweeps the X position to simulate sound orbiting the head.
+  * *Note:* Z axis is held fixed at −1 (directly in front). A circular X/Z orbit was tried and discarded — the HRTF front/back hemisphere transition creates asymmetric spectral coloration that sounds like a whip on the return pass.
+  * *Controls:* Individual volume for white/pink/brown noise, 3D Movement Intensity.
+* **Built-in Presets:** Deep Sleep, Study Focus, Anxiety Relief, Meditation.
 
-### **3.5. User Interface (UI) & User Experience (UX)**
+### **3.2 Mode 2: Tibetan Singing Bowls** ✅ Implemented
 
-* **Design Language:** Dark mode default. Deep blues, purples, and soft gradients. Minimalist typography.  
-* **Layout:**  
-  * Large, easily tappable play/pause master button.  
-  * Smooth, custom-styled sliders with large touch targets for mobile.  
-  * Expandable/collapsible sections for advanced settings to avoid overwhelming the user.  
-* **Headphone Requirement:** An initial modal or persistent UI hint reminding the user that headphones are required for binaural and 3D effects.
+Fully synthesized. Four oscillators at inharmonic frequency ratios derived from hemispherical shell vibration modes (Bessel function zeros): 1×, 2.756×, 5.404×, 8.933× the fundamental. Each partial has a micro-detune (±2 cents random) for shimmer, and a distinct exponential decay rate — higher partials fade faster, reproducing the signature of a real struck bowl.
 
-## **4\. Development Stages & Verification Criteria**
+* **Strike envelope:** 15 ms linear attack → `setTargetAtTime` exponential decay. `bowlSustain` (0–100%) maps to a 1.2–12 s audible decay window.
+* **Badge:** Chakra label (Root C / Sacral D / Solar Plexus E / Heart F / Throat G / Third Eye A / Crown B) updates with bowl frequency.
+* **Controls:** Bowl Frequency (100–600 Hz), Strike Every (2–20 s), Sustain, Volume.
+* **Built-in Presets:** Heart Bowl (341 Hz / F), Crown Bowl (480 Hz / B).
 
-This project should be broken down into the following implementation stages:
+### **3.3 Mode 3: Simulated Binaural Ear Cleaning** ⏳ Placeholder
 
-### **Stage 1: Core Audio Engine (The Foundation)**
+ASMR-style spatial audio simulating ear cleaning tools (ear picks, cotton swabs, brushes, air puffs) moving closely around the listener's head via scripted HRTF `PannerNode` position automation.
 
-* **Tasks:**  
-  * Initialize Web Audio API AudioContext.  
-  * Build the Binaural Beat module (two oscillators, merged with a ChannelMergerNode).  
-  * Implement basic play/pause logic.  
-  * Connect HTML range sliders to oscillator frequency and volume parameters.  
-* **Verification:**  
-  * \[ \] User can hear a distinct tone in each ear when wearing headphones.  
-  * \[ \] Adjusting the "Carrier" slider changes the overall pitch smoothly without audio clicking.  
-  * \[ \] Adjusting the "Beat" slider changes the pulsing speed.
+* **Status: Blocked on audio asset sourcing.** Pure Web Audio synthesis cannot produce the organic, granular textures that trigger the ASMR response. This mode requires either permissively-licensed binaural-ready samples (e.g., CC0 assets from Freesound.org) or original recordings made with in-ear binaural microphones (e.g., Roland CS-10EM). The implementation architecture once assets are sourced is `AudioBufferSourceNode` → HRTF `PannerNode` → scripted position automation, identical to Mode 4's spatial approach.
+* The module slot (`js/audio/earclean.js`), UI card, and mode button are already wired — all exports are no-ops until implementation begins.
 
-### **Stage 2: Noise Generation & 3D Spatialization**
+### **3.4 Mode 4: Personal Space Audio** ✅ Implemented
 
-* **Tasks:**  
-  * Implement algorithms to generate White, Pink, and Brown noise using AudioWorklet or buffer manipulation.  
-  * Implement PannerNode (set to HRTF panning model).  
-  * Route a noise source through the PannerNode and automate its X coordinate using a slow LFO (Low Frequency Oscillator) to create a smooth left-right sweeping effect. **Note:** A circular X/Z orbit was originally attempted but discarded — the HRTF front/back hemisphere transition creates asymmetric spectral coloration, making one direction sound smooth and the return feel like a whip. The Z axis is held fixed at -1 (directly in front of the listener).  
-* **Verification:**  
-  * \[ \] Noise generators produce distinct, accurate frequency profiles (Brown is bassy, White is static).  
-  * \[ \] The 3D audio element sounds like it is physically moving around the user's head when wearing headphones.
+Synthesized near-field spatial audio designed to create the sensation of intimate, close-proximity sound positioned just outside the listener's ears.
 
-### **Stage 3: UI Implementation & Mobile Optimization**
+* **Signal chain:** Pink noise → two parallel paths (low-pass warmth filter + narrow bandpass shimmer at 7 kHz) → mix → breath gain → two HRTF `PannerNode`s at mirrored positions (`±psProximity, y:0, z:−0.05`).
+* **Breath LFO:** `OscillatorNode` at 0.08 Hz (≈12 s period) connected directly to a `GainNode.gain` AudioParam — audio-rate modulation, no `setInterval`. Gain oscillates 0.76–1.0 for a subtle breathing quality.
+* **Drift:** A 50 ms `setInterval` oscillates both panner X positions by ±0.03 units over a 20–40 s period (controlled by Movement Speed). `_currentDrift` is tracked module-internally so position updates from the slider don't snap the drift to zero.
+* **Proximity control:** Maps to the panner X position (0.05–0.4), not `refDistance`. At the panner's fixed distance, most of the `refDistance` range clamps gain to 1.0 with no audible effect; the HRTF coloration from position change is the meaningful variable. `refDistance` is fixed at 0.5.
+* **Badge:** Intimate / Present / Enveloping based on proximity value.
+* **Controls:** Proximity (Very Close → Wider), Warmth (400–2000 Hz low-pass), Drift Speed, Volume.
+* **Built-in Presets:** Cocoon (ultra-close, warm, barely drifting), Night Presence (mid-range, airier, faster drift).
 
-* **Tasks:**  
-  * Translate HTML controls into a styled, beautiful mobile-first interface.  
-  * Implement custom sliders that are easy to drag on touch screens.  
-  * Ensure layout fits within standard mobile viewport without horizontal scrolling.  
-* **Verification:**  
-  * \[ \] UI achieves a Google Lighthouse Accessibility and Best Practices score of 90+.  
-  * \[ \] All sliders have touch targets of at least 44x44 CSS pixels.  
-  * \[ \] No double-tap zoom issues on mobile devices.
+## **4\. Shared Features**
 
-### **Stage 4: Background Playback Resiliency**
+### **4.1 Mode Switcher**
 
-* **Tasks:**  
-  * Implement a hidden, looping \<audio\> element containing silence that starts on the first user interaction.  
-  * Implement navigator.mediaSession.metadata to show "Thenopi \- Relaxing Audio" on the device lock screen.  
-  * Bind hardware media keys (Play/Pause) to the Web Audio Context state.  
-* **Verification:**  
-  * \[ \] (Critical Test) Start audio on an iOS Safari device, lock the screen. Audio must continue playing for at least 15 minutes without stopping.  
-  * \[ \] Lock screen shows appropriate app title and play/pause controls work.
+Four-button pill switcher (🎵 Binaural / 🔔 Bowls / 👂 ASMR / 🫧 Presence) above the section cards. Switching modes tears down the current audio graph, builds the new one, and restarts timers — all without destroying the `AudioContext`. Mode 3 shows a Coming Soon card with no active audio.
 
-### **Stage 5: State Management & Export**
+### **4.2 Preset & Settings Management** ✅ Implemented
 
-* **Tasks:**  
-  * Create a central state object representing all slider values and toggle states.  
-  * Implement saving this state to localStorage on change.  
-  * Implement a "Download Settings" button that creates a Blob from the JSON state and triggers a download.  
-  * Implement an "Upload Settings" button to parse JSON and update the state.  
-* **Verification:**  
-  * \[ \] Refreshing the page retains the exact audio settings from the previous session.  
-  * \[ \] Downloading produces a valid .json file.  
-  * \[ \] Uploading a previously downloaded .json file instantly updates the UI and audio output.
+* **Built-in Presets:** 8 total across all modes (4 binaural, 2 bowls, 2 personal space), grouped by mode in the Presets section. Loading a preset from a different mode switches automatically.
+* **Custom Presets:** Save full application state (all mode parameters + current mode) to `localStorage`, named by the user via prompt. Load or delete individually.
+* **Export/Import:** Serialize state to `{ version: 2, state, customPresets }` JSON and trigger a browser download. Import parses the file and applies immediately.
+* **Auto-persist:** Every slider change and preset load writes to `localStorage`. Settings are restored on next visit. Adding new state keys is backwards-compatible — old saves missing new keys fall back to `DEFAULTS`.
 
-## **5\. Future Considerations (V2)**
+### **4.3 Background Playback (Mobile Screen-Off)** ✅ Implemented
 
-* **Visualizer:** A slow, pulsing WebGL or Canvas-based visualizer synced to the binaural beat frequency.  
-* **Timer/Fade-out:** A sleep timer that slowly reduces the master volume to zero over a set period (e.g., 30 minutes) to prevent sudden wake-ups.  
-* **Offline PWA:** Add a Service Worker and manifest.json to allow users to "Install" the static page to their home screen so it works entirely without an internet connection.
+* A silent oscillator is routed to a `MediaStreamDestination` and played via a hidden `<audio>` element on first user interaction. This registers Thenopi as an active media player with the OS, preventing `AudioContext` suspension when the screen locks.
+* `navigator.mediaSession.metadata` displays app name on the device lock screen. Hardware play/pause/stop keys are bound.
+
+### **4.4 User Interface** ✅ Implemented
+
+* Dark mode. Deep blues, purples, and soft gradients. Minimalist typography.
+* Custom `<input type="range">` sliders with 24px touch targets and fill-track via CSS custom property.
+* Expandable/collapsible section cards (animated height transition).
+* Mode-specific badge (brainwave state / chakra note / proximity mood) with fade-in animation on change.
+* Headphone reminder modal on first visit (dismissed state saved to `localStorage`).
+
+## **5\. Development Stages**
+
+### **Stage 1: Core Audio Engine** ✅ Complete
+
+Binaural beat oscillators, `ChannelMergerNode`, play/pause logic, slider-to-AudioParam wiring.
+
+### **Stage 2: Noise Generation & 3D Spatialization** ✅ Complete
+
+White/pink/brown noise via buffer generation. HRTF `PannerNode` with X-axis LFO sweep. Z-axis fixed at −1 (circular orbit discarded — see §3.1 note).
+
+### **Stage 3: UI Implementation & Mobile Optimization** ✅ Complete
+
+Full styled mobile-first UI. Custom sliders. Expandable sections. Mode switcher. All content fits standard mobile viewport.
+
+*Verification items pending formal audit:*
+* \[ \] Google Lighthouse Accessibility / Best Practices score ≥ 90.
+* \[ \] Touch targets verified at ≥ 44×44 CSS px on device.
+* \[ \] No double-tap zoom on mobile.
+
+### **Stage 4: Background Playback Resiliency** ✅ Complete
+
+Silent `MediaStream` keep-alive, `mediaSession` metadata, hardware key bindings.
+
+*Verification items pending live device test:*
+* \[ \] (Critical) iOS Safari: audio continues for ≥15 minutes with screen locked.
+* \[ \] Lock screen shows app title and play/pause controls function.
+
+### **Stage 5: State Management & Export** ✅ Complete
+
+`localStorage` auto-persist on every change. JSON export (download) and import (file input). Settings restored on page reload. Custom presets with name, save, load, and delete.
+
+### **Stage 6: Alternate Audio Modes** ✅ Largely Complete
+
+* \[x\] Mode switcher UI (teardown/build on switch, AudioContext preserved).
+* \[x\] Mode 2: Tibetan Singing Bowls (fully synthesized).
+* \[x\] Mode 4: Personal Space Audio (fully synthesized).
+* \[ \] Mode 3: Binaural Ear Cleaning (architecture wired; blocked on asset sourcing — see §3.3).
+
+## **6\. Remaining Work**
+
+### **6.1 Mode 3 — Asset Sourcing**
+
+The only blocker for Mode 3 completion is sourcing or creating permissively-licensed binaural-ready audio samples. Options:
+
+1. **CC0 samples** from Freesound.org, searched for binaural ear cleaning ASMR recordings.
+2. **Original recordings** using in-ear binaural microphones (e.g., Roland CS-10EM). This produces the highest quality result.
+
+Once assets are available, implementation follows the same `AudioBufferSourceNode` → HRTF `PannerNode` → scripted position automation pattern already established by Mode 4.
+
+### **6.2 Visualizer**
+
+A slow, pulsing Canvas or WebGL visualizer synced to the active mode's primary frequency (binaural beat frequency in Mode 1; bowl frequency in Mode 2; breath LFO rate in Mode 4).
+
+### **6.3 Sleep Timer / Fade-Out**
+
+A configurable timer (e.g., 15, 30, 60 minutes) that ramps master volume to zero using `AudioParam.linearRampToValueAtTime`, then pauses playback. Prevents abrupt audio cutoff mid-sleep.
+
+### **6.4 PWA / Offline Support**
+
+A `Service Worker` + `manifest.json` to allow home-screen installation and fully offline playback. Low implementation cost given the app is already entirely static with no external runtime dependencies.
+
+### **6.5 Lighthouse Audit & Mobile Device Testing**
+
+Formal verification of Stage 3 and Stage 4 criteria on real iOS and Android devices (see §5 open checkboxes).

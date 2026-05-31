@@ -6,89 +6,7 @@
   <meta name="theme-color" content="#0a0a1e">
   <title>Thenopi — Relaxation Audio</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root { --accent: #a78bfa; --accent-glow: rgba(167,139,250,0.5); }
-
-    body {
-      background: linear-gradient(160deg, #0a0a1e 0%, #130a2e 45%, #0a0a1e 100%);
-      min-height: 100vh;
-    }
-
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 6px;
-      border-radius: 3px;
-      outline: none;
-      cursor: pointer;
-      background: linear-gradient(
-        to right,
-        var(--accent) 0%,
-        var(--accent) var(--fill, 0%),
-        rgba(255,255,255,0.12) var(--fill, 0%)
-      );
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--accent);
-      cursor: pointer;
-      box-shadow: 0 0 10px var(--accent-glow);
-      border: 2px solid rgba(255,255,255,0.35);
-      transition: box-shadow 0.15s, transform 0.15s;
-    }
-    input[type="range"]:active::-webkit-slider-thumb {
-      box-shadow: 0 0 22px var(--accent-glow);
-      transform: scale(1.2);
-    }
-    input[type="range"]::-moz-range-thumb {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 2px solid rgba(255,255,255,0.35);
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-    input[type="range"]::-moz-range-track {
-      height: 6px; border-radius: 3px;
-      background: rgba(255,255,255,0.12);
-    }
-
-    .section-body {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
-    }
-    .section-body.open { max-height: 700px; }
-
-    .chevron { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
-    .section-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
-
-    @keyframes pulse-ring {
-      0%   { box-shadow: 0 0 0 0 rgba(167,139,250,0.45), 0 0 28px rgba(167,139,250,0.3); }
-      70%  { box-shadow: 0 0 0 18px rgba(167,139,250,0), 0 0 28px rgba(167,139,250,0.3); }
-      100% { box-shadow: 0 0 0 0 rgba(167,139,250,0), 0 0 28px rgba(167,139,250,0.3); }
-    }
-    #play-btn.playing { animation: pulse-ring 2.5s ease-out infinite; }
-
-    @keyframes badgeFade {
-      from { opacity: 0; transform: translateY(-5px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .badge-animate { animation: badgeFade 0.3s ease; }
-
-    .card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-    }
-
-    .modal-overlay {
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(10px);
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="text-white antialiased">
 
@@ -98,7 +16,7 @@
       <div class="text-6xl mb-4">🎧</div>
       <h2 class="text-2xl font-bold mb-2" style="color:#c4b5fd;">Headphones Required</h2>
       <p class="text-gray-300 text-sm leading-relaxed mb-6">
-        Binaural beats and 3D spatial audio require stereo headphones. Regular speakers will not produce the intended effect.
+        Binaural beats, 3D spatial audio, and singing bowl resonance are all optimized for stereo headphones. Speakers will work but won't produce the intended spatial effects.
       </p>
       <button id="modal-dismiss"
         class="w-full py-3 px-6 rounded-xl font-semibold text-white transition-opacity hover:opacity-90 active:scale-95"
@@ -121,7 +39,7 @@
     </header>
 
     <!-- Play Button -->
-    <div class="flex justify-center mb-8">
+    <div class="flex justify-center mb-6">
       <button id="play-btn" aria-label="Start or pause audio"
         class="w-24 h-24 rounded-full flex flex-col items-center justify-center transition-transform active:scale-95"
         style="background:linear-gradient(135deg,#4c1d95,#7c3aed);border:2px solid rgba(167,139,250,0.4);">
@@ -130,8 +48,25 @@
       </button>
     </div>
 
-    <!-- Binaural Beats -->
-    <div class="card mb-3">
+    <!-- Mode Switcher -->
+    <div class="flex gap-1 mb-4 p-1 rounded-2xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <button class="mode-btn flex-1 py-2.5 rounded-xl text-sm font-medium" data-mode="1" aria-pressed="true">
+        🎵 Binaural
+      </button>
+      <button class="mode-btn flex-1 py-2.5 rounded-xl text-sm font-medium" data-mode="2" aria-pressed="false">
+        🔔 Bowls
+      </button>
+      <button class="mode-btn flex-1 py-2.5 rounded-xl text-sm font-medium" data-mode="3" aria-pressed="false">
+        👂 ASMR
+      </button>
+      <button class="mode-btn flex-1 py-2.5 rounded-xl text-sm font-medium" data-mode="4" aria-pressed="false">
+        🫧 Presence
+      </button>
+    </div>
+
+    <!-- ── MODE 1: Binaural Beats ─────────────────────────────────────── -->
+
+    <div class="card mb-3" data-mode-section="1">
       <button class="section-toggle w-full p-4 flex items-center justify-between" aria-expanded="true" data-target="binaural-body">
         <div class="flex items-center gap-3">
           <span class="text-lg">🎵</span>
@@ -181,8 +116,9 @@
       </div>
     </div>
 
-    <!-- Soundscapes -->
-    <div class="card mb-3">
+    <!-- ── MODE 1: Soundscapes ────────────────────────────────────────── -->
+
+    <div class="card mb-3" data-mode-section="1">
       <button class="section-toggle w-full p-4 flex items-center justify-between" aria-expanded="true" data-target="soundscape-body">
         <div class="flex items-center gap-3">
           <span class="text-lg">🌊</span>
@@ -228,14 +164,205 @@
               <span id="d-spatial" class="text-sm font-mono" style="color:#a78bfa;">50%</span>
             </div>
             <input type="range" id="s-spatial" min="0" max="1" value="0.5" step="0.01">
-            <p class="text-xs text-gray-700 mt-1">How much sound orbits around your head</p>
+            <p class="text-xs text-gray-700 mt-1">How much sound sweeps around your head</p>
           </div>
 
         </div>
       </div>
     </div>
 
-    <!-- Presets -->
+    <!-- ── MODE 2: Tibetan Singing Bowls ──────────────────────────────── -->
+
+    <div class="card mb-3" data-mode-section="2" hidden>
+      <button class="section-toggle w-full p-4 flex items-center justify-between" aria-expanded="true" data-target="bowls-body">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">🔔</span>
+          <span class="font-semibold" style="color:#ddd6fe;">Singing Bowls</span>
+        </div>
+        <svg class="chevron w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div class="section-body open" id="bowls-body">
+        <div class="px-4 pb-5 space-y-5">
+
+          <div class="flex justify-center">
+            <span id="chakra-pill" class="badge-animate px-4 py-1 rounded-full text-xs font-semibold"
+              style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.35);color:rgb(239,68,68);">
+              Root — Grounding &amp; stability
+            </span>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-bowl-freq" class="text-sm text-gray-300 font-medium">Bowl Frequency</label>
+              <span id="d-bowl-freq" class="text-sm font-mono" style="color:#a78bfa;">256 Hz</span>
+            </div>
+            <input type="range" id="s-bowl-freq" min="100" max="600" value="256" step="1">
+            <div class="flex justify-between text-xs text-gray-700 mt-1">
+              <span>Root (C)</span>
+              <span>Crown (B)</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-bowl-interval" class="text-sm text-gray-300 font-medium">Strike Interval</label>
+              <span id="d-bowl-interval" class="text-sm font-mono" style="color:#a78bfa;">8.0 s</span>
+            </div>
+            <input type="range" id="s-bowl-interval" min="5" max="30" value="8" step="0.5">
+            <div class="flex justify-between text-xs text-gray-700 mt-1">
+              <span>5 s</span><span>Average pace — timing varies naturally</span><span>30 s</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-bowl-sustain" class="text-sm text-gray-300 font-medium">Sustain</label>
+              <span id="d-bowl-sustain" class="text-sm font-mono" style="color:#a78bfa;">70%</span>
+            </div>
+            <input type="range" id="s-bowl-sustain" min="0.1" max="1" value="0.7" step="0.01">
+            <p class="text-xs text-gray-700 mt-1">How long the resonance rings after each strike</p>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-bowl-vol" class="text-sm text-gray-300 font-medium">Volume</label>
+              <span id="d-bowl-vol" class="text-sm font-mono" style="color:#a78bfa;">70%</span>
+            </div>
+            <input type="range" id="s-bowl-vol" min="0" max="1" value="0.7" step="0.01">
+          </div>
+
+          <!-- ── Second Bowl ── -->
+          <div class="border-t pt-4" style="border-color:rgba(255,255,255,0.08);">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <p class="text-sm text-gray-300 font-medium">Second Bowl</p>
+                <p class="text-xs text-gray-600 mt-0.5">Add a harmonizing bowl above the first</p>
+              </div>
+              <button id="bowl2-toggle" aria-pressed="false"
+                class="px-4 py-1.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#c4b5fd;min-width:3.5rem;">
+                Off
+              </button>
+            </div>
+
+            <div id="bowl2-interval-section" hidden>
+              <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#6b7280;">Harmonic Interval</p>
+              <div class="grid grid-cols-4 gap-1.5 mb-3">
+                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="1.25"
+                  style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
+                  <span class="block text-xs font-semibold">M3</span>
+                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">5:4</span>
+                </button>
+                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="1.333"
+                  style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
+                  <span class="block text-xs font-semibold">P4</span>
+                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">4:3</span>
+                </button>
+                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="1.5"
+                  style="background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.55);color:#c4b5fd;">
+                  <span class="block text-xs font-semibold">P5</span>
+                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">3:2</span>
+                </button>
+                <button class="bowl2-interval-btn py-2 rounded-xl text-center transition-all active:scale-95" data-ratio="2"
+                  style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">
+                  <span class="block text-xs font-semibold">Oct</span>
+                  <span class="block text-xs" style="font-size:0.65rem;opacity:0.6;">2:1</span>
+                </button>
+              </div>
+              <div class="flex justify-center">
+                <span id="bowl2-chakra-pill" class="px-3 py-1 rounded-full text-xs"
+                  style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;">
+                  Bowl 2: —
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODE 3: Binaural Ear Cleaning (placeholder) ────────────────── -->
+
+    <div class="card mb-3" data-mode-section="3" hidden>
+      <div class="p-6 text-center">
+        <div class="text-5xl mb-4">👂</div>
+        <h3 class="text-lg font-semibold mb-2" style="color:#ddd6fe;">Binaural Ear Cleaning</h3>
+        <p class="text-sm leading-relaxed mb-4" style="color:#6b7280;">
+          ASMR-style spatial audio simulating ear cleaning tools — probes, brushes, and air puffs — moving closely around the listener's head via HRTF positioning.
+        </p>
+        <span class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold"
+          style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#a5b4fc;">
+          Coming Soon
+        </span>
+      </div>
+    </div>
+
+    <!-- ── MODE 4: Personal Space Audio ─────────────────────────────── -->
+
+    <div class="card mb-3" data-mode-section="4" hidden>
+      <button class="section-toggle w-full p-4 flex items-center justify-between" aria-expanded="true" data-target="ps-body">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">🫧</span>
+          <span class="font-semibold" style="color:#ddd6fe;">Personal Space</span>
+        </div>
+        <svg class="chevron w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div class="section-body open" id="ps-body">
+        <div class="px-4 pb-5 space-y-5">
+
+          <div class="flex justify-center">
+            <span id="ps-mood-pill" class="badge-animate px-4 py-1 rounded-full text-xs font-semibold"
+              style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.35);color:rgb(168,85,247);">
+              Present — Personal space
+            </span>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-ps-proximity" class="text-sm text-gray-300 font-medium">Proximity</label>
+              <span id="d-ps-proximity" class="text-sm font-mono" style="color:#a78bfa;">0.12</span>
+            </div>
+            <input type="range" id="s-ps-proximity" min="0.05" max="0.4" value="0.12" step="0.01">
+            <div class="flex justify-between text-xs text-gray-700 mt-1"><span>Very Close</span><span>Wider</span></div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-ps-warmth" class="text-sm text-gray-300 font-medium">Warmth</label>
+              <span id="d-ps-warmth" class="text-sm font-mono" style="color:#a78bfa;">800 Hz</span>
+            </div>
+            <input type="range" id="s-ps-warmth" min="400" max="2000" value="800" step="10">
+            <div class="flex justify-between text-xs text-gray-700 mt-1"><span>Enveloping</span><span>Airy</span></div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-ps-movespeed" class="text-sm text-gray-300 font-medium">Drift Speed</label>
+              <span id="d-ps-movespeed" class="text-sm font-mono" style="color:#a78bfa;">40%</span>
+            </div>
+            <input type="range" id="s-ps-movespeed" min="0" max="1" value="0.4" step="0.01">
+            <p class="text-xs text-gray-700 mt-1">Speed of the imperceptible micro-drift in position</p>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="s-ps-vol" class="text-sm text-gray-300 font-medium">Volume</label>
+              <span id="d-ps-vol" class="text-sm font-mono" style="color:#a78bfa;">65%</span>
+            </div>
+            <input type="range" id="s-ps-vol" min="0" max="1" value="0.65" step="0.01">
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Presets (all modes) ────────────────────────────────────────── -->
+
     <div class="card mb-3">
       <button class="section-toggle w-full p-4 flex items-center justify-between" aria-expanded="false" data-target="presets-body">
         <div class="flex items-center gap-3">
@@ -248,6 +375,8 @@
       </button>
       <div class="section-body" id="presets-body">
         <div class="px-4 pb-5 space-y-3">
+
+          <p class="text-xs font-medium uppercase tracking-wider" style="color:#4b5563;">Binaural Beats</p>
           <div class="grid grid-cols-2 gap-2">
             <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="deep-sleep"
               style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;">
@@ -266,6 +395,39 @@
               🧘 Meditation
             </button>
           </div>
+
+          <div class="border-t pt-3" style="border-color:rgba(255,255,255,0.06);">
+            <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#4b5563;">Singing Bowls</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="heart-bowl"
+                style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#86efac;">
+                💚 Heart Bowl
+              </button>
+              <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="crown-bowl"
+                style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#d8b4fe;">
+                💜 Root + Octave
+              </button>
+              <button class="preset-btn col-span-2 py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="root-harmony"
+                style="background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);color:#67e8f9;">
+                🎵 Root + Fifth (C &amp; G)
+              </button>
+            </div>
+          </div>
+
+          <div class="border-t pt-3" style="border-color:rgba(255,255,255,0.06);">
+            <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:#4b5563;">Personal Space</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="cocoon"
+                style="background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);color:#f9a8d4;">
+                🫧 Cocoon
+              </button>
+              <button class="preset-btn py-3 px-3 rounded-xl text-sm font-medium transition-all active:scale-95" data-preset="night-presence"
+                style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#a5b4fc;">
+                🌙 Night Presence
+              </button>
+            </div>
+          </div>
+
           <div class="border-t pt-3" style="border-color:rgba(255,255,255,0.06);">
             <p class="text-xs font-medium uppercase tracking-wider text-gray-600 mb-2">Custom Presets</p>
             <div id="custom-list" class="space-y-2 mb-3"></div>
@@ -275,11 +437,13 @@
               <span>+</span> Save Current Settings as Preset
             </button>
           </div>
+
         </div>
       </div>
     </div>
 
-    <!-- Settings -->
+    <!-- ── Settings ───────────────────────────────────────────────────── -->
+
     <div class="card mb-3">
       <button class="section-toggle w-full p-4 flex items-center justify-between" aria-expanded="false" data-target="settings-body">
         <div class="flex items-center gap-3">
@@ -315,471 +479,6 @@
     </p>
   </div>
 
-<script>
-'use strict';
-
-// ── Constants ────────────────────────────────────────────────────────────────
-
-const DEFAULTS = {
-  carrierFreq: 200, beatFreq: 6,
-  binauralVol: 0.5, whiteVol: 0, pinkVol: 0.3, brownVol: 0.3,
-  spatialIntensity: 0.5,
-};
-
-const PRESETS = {
-  'deep-sleep':     { carrierFreq: 150, beatFreq: 2,  binauralVol: 0.65, whiteVol: 0,   pinkVol: 0.15, brownVol: 0.55, spatialIntensity: 0.2  },
-  'study-focus':    { carrierFreq: 260, beatFreq: 18, binauralVol: 0.55, whiteVol: 0.1, pinkVol: 0.4,  brownVol: 0.1,  spatialIntensity: 0.35 },
-  'anxiety-relief': { carrierFreq: 180, beatFreq: 10, binauralVol: 0.5,  whiteVol: 0,   pinkVol: 0.3,  brownVol: 0.45, spatialIntensity: 0.6  },
-  'meditation':     { carrierFreq: 200, beatFreq: 6,  binauralVol: 0.6,  whiteVol: 0,   pinkVol: 0.2,  brownVol: 0.35, spatialIntensity: 0.5  },
-};
-
-const BRAINWAVES = [
-  { max: 4,  label: 'Delta', desc: 'Deep Sleep',              bg: 'rgba(59,130,246,0.2)',  border: 'rgba(59,130,246,0.4)',  text: '#93c5fd' },
-  { max: 8,  label: 'Theta', desc: 'Meditation & Creativity', bg: 'rgba(139,92,246,0.2)',  border: 'rgba(139,92,246,0.4)',  text: '#c4b5fd' },
-  { max: 14, label: 'Alpha', desc: 'Relaxation & Light Focus',bg: 'rgba(34,197,94,0.2)',   border: 'rgba(34,197,94,0.4)',   text: '#86efac' },
-  { max: 30, label: 'Beta',  desc: 'Active Concentration',    bg: 'rgba(234,179,8,0.2)',   border: 'rgba(234,179,8,0.4)',   text: '#fde047' },
-  { max: 40, label: 'Gamma', desc: 'Peak Focus',              bg: 'rgba(249,115,22,0.2)',  border: 'rgba(249,115,22,0.4)',  text: '#fdba74' },
-];
-
-// ── State ─────────────────────────────────────────────────────────────────────
-
-let state = { ...DEFAULTS };
-let customPresets = [];
-
-// ── Audio engine ──────────────────────────────────────────────────────────────
-
-const eng = {
-  ctx: null,
-  playing: false,
-  leftOsc: null, rightOsc: null, binauralGain: null,
-  noiseGains: {}, noisePanners: {},
-  lfoTimer: null, lfoPhase: 0,
-};
-
-function initAudio() {
-  if (eng.ctx) return;
-  const Ctx = window.AudioContext || window.webkitAudioContext;
-  if (!Ctx) { alert('Web Audio API not supported in this browser.'); return; }
-  eng.ctx = new Ctx();
-  buildBinaural();
-  buildNoise();
-  keepAlive();
-  setupMediaSession();
-}
-
-function buildBinaural() {
-  const ctx = eng.ctx;
-  const merger = ctx.createChannelMerger(2);
-  eng.binauralGain = ctx.createGain();
-  eng.binauralGain.gain.value = state.binauralVol;
-  merger.connect(eng.binauralGain);
-  eng.binauralGain.connect(ctx.destination);
-
-  const lGain = ctx.createGain();
-  const rGain = ctx.createGain();
-  lGain.connect(merger, 0, 0);  // left channel
-  rGain.connect(merger, 0, 1);  // right channel
-
-  eng.leftOsc = ctx.createOscillator();
-  eng.leftOsc.type = 'sine';
-  eng.leftOsc.frequency.value = state.carrierFreq - state.beatFreq / 2;
-  eng.leftOsc.connect(lGain);
-  eng.leftOsc.start();
-
-  eng.rightOsc = ctx.createOscillator();
-  eng.rightOsc.type = 'sine';
-  eng.rightOsc.frequency.value = state.carrierFreq + state.beatFreq / 2;
-  eng.rightOsc.connect(rGain);
-  eng.rightOsc.start();
-}
-
-function buildNoise() {
-  const ctx = eng.ctx;
-  const len = Math.floor(ctx.sampleRate * 15);
-
-  ['white', 'pink', 'brown'].forEach(type => {
-    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    fillNoise(buf.getChannelData(0), type);
-
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.loop = true;
-
-    const panner = ctx.createPanner();
-    panner.panningModel = 'HRTF';
-    panner.distanceModel = 'inverse';
-    panner.refDistance = 1;
-    panner.rolloffFactor = 0;
-    panner.coneInnerAngle = 360;
-    setPos(panner, 0, 0, -1);
-
-    const gain = ctx.createGain();
-    gain.gain.value = state[type + 'Vol'];
-
-    src.connect(panner);
-    panner.connect(gain);
-    gain.connect(ctx.destination);
-    src.start();
-
-    eng.noisePanners[type] = panner;
-    eng.noiseGains[type] = gain;
-  });
-}
-
-function fillNoise(data, type) {
-  const n = data.length;
-  if (type === 'white') {
-    for (let i = 0; i < n; i++) data[i] = Math.random() * 2 - 1;
-  } else if (type === 'pink') {
-    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
-    for (let i = 0; i < n; i++) {
-      const w = Math.random() * 2 - 1;
-      b0 = 0.99886*b0 + w*0.0555179; b1 = 0.99332*b1 + w*0.0750759;
-      b2 = 0.96900*b2 + w*0.1538520; b3 = 0.86650*b3 + w*0.3104856;
-      b4 = 0.55000*b4 + w*0.5329522; b5 = -0.7616*b5 - w*0.0168980;
-      data[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362) * 0.11;
-      b6 = w * 0.115926;
-    }
-  } else {
-    let last = 0;
-    for (let i = 0; i < n; i++) {
-      const w = Math.random() * 2 - 1;
-      data[i] = (last + 0.02 * w) / 1.02;
-      last = data[i];
-      data[i] *= 3.5;
-    }
-  }
-}
-
-function setPos(panner, x, y, z) {
-  if (panner.positionX) {
-    panner.positionX.value = x;
-    panner.positionY.value = y;
-    panner.positionZ.value = z;
-  } else {
-    panner.setPosition(x, y, z);
-  }
-}
-
-function keepAlive() {
-  // Silent MediaStream keeps AudioContext alive on mobile when screen locks
-  try {
-    const silGain = eng.ctx.createGain();
-    silGain.gain.value = 0;
-    const silOsc = eng.ctx.createOscillator();
-    silOsc.connect(silGain);
-    const dest = eng.ctx.createMediaStreamDestination();
-    silGain.connect(dest);
-    silOsc.start();
-    const a = new Audio();
-    a.srcObject = dest.stream;
-    a.play().catch(() => {});
-  } catch (e) { /* not critical */ }
-}
-
-function setupMediaSession() {
-  if (!('mediaSession' in navigator)) return;
-  navigator.mediaSession.metadata = new MediaMetadata({
-    title: 'Thenopi — Relaxing Audio',
-    artist: 'Binaural & Spatial Audio',
-    album: 'Thenopi',
-  });
-  navigator.mediaSession.setActionHandler('play',  () => { if (!eng.playing) togglePlay(); });
-  navigator.mediaSession.setActionHandler('pause', () => { if (eng.playing)  togglePlay(); });
-  navigator.mediaSession.setActionHandler('stop',  () => { if (eng.playing)  togglePlay(); });
-}
-
-function startLFO() {
-  if (eng.lfoTimer) return;
-  eng.lfoTimer = setInterval(() => {
-    eng.lfoPhase += 0.07;
-    const r = state.spatialIntensity * 4;
-    const x = Math.sin(eng.lfoPhase) * r;
-    ['white', 'pink', 'brown'].forEach(t => {
-      if (eng.noisePanners[t]) setPos(eng.noisePanners[t], x, 0, -1);
-    });
-  }, 50);
-}
-
-function stopLFO() {
-  if (eng.lfoTimer) { clearInterval(eng.lfoTimer); eng.lfoTimer = null; }
-}
-
-function togglePlay() {
-  if (!eng.ctx) initAudio();
-  if (eng.playing) {
-    eng.ctx.suspend();
-    stopLFO();
-    eng.playing = false;
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-  } else {
-    eng.ctx.resume();
-    startLFO();
-    eng.playing = true;
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-  }
-  renderPlayBtn();
-}
-
-// ── Audio parameter updates ───────────────────────────────────────────────────
-
-function syncBinauralFreqs() {
-  if (!eng.leftOsc) return;
-  const t = eng.ctx.currentTime;
-  eng.leftOsc.frequency.setTargetAtTime(state.carrierFreq - state.beatFreq / 2, t, 0.05);
-  eng.rightOsc.frequency.setTargetAtTime(state.carrierFreq + state.beatFreq / 2, t, 0.05);
-}
-
-function syncBinauralVol() {
-  if (!eng.binauralGain) return;
-  eng.binauralGain.gain.setTargetAtTime(state.binauralVol, eng.ctx.currentTime, 0.05);
-}
-
-function syncNoiseVol(type) {
-  if (!eng.noiseGains[type]) return;
-  eng.noiseGains[type].gain.setTargetAtTime(state[type + 'Vol'], eng.ctx.currentTime, 0.05);
-}
-
-// ── UI ────────────────────────────────────────────────────────────────────────
-
-function renderPlayBtn() {
-  const btn   = document.getElementById('play-btn');
-  const icon  = document.getElementById('play-icon');
-  const label = document.getElementById('play-label');
-  if (eng.playing) {
-    btn.classList.add('playing');
-    icon.textContent = '⏸'; label.textContent = 'Playing';
-  } else {
-    btn.classList.remove('playing');
-    icon.textContent = '▶'; label.textContent = 'Start';
-  }
-}
-
-function setSlider(id, value, min, max) {
-  const el = document.getElementById(id);
-  el.value = value;
-  el.style.setProperty('--fill', ((value - min) / (max - min) * 100) + '%');
-}
-
-function fillFromSlider(el) {
-  const pct = (parseFloat(el.value) - parseFloat(el.min)) / (parseFloat(el.max) - parseFloat(el.min)) * 100;
-  el.style.setProperty('--fill', pct + '%');
-}
-
-function renderLabels() {
-  document.getElementById('d-carrier').textContent  = Math.round(state.carrierFreq) + ' Hz';
-  document.getElementById('d-beat').textContent     = state.beatFreq.toFixed(1) + ' Hz';
-  document.getElementById('d-bvol').textContent     = Math.round(state.binauralVol * 100) + '%';
-  document.getElementById('d-white').textContent    = Math.round(state.whiteVol * 100) + '%';
-  document.getElementById('d-pink').textContent     = Math.round(state.pinkVol * 100) + '%';
-  document.getElementById('d-brown').textContent    = Math.round(state.brownVol * 100) + '%';
-  document.getElementById('d-spatial').textContent  = Math.round(state.spatialIntensity * 100) + '%';
-  renderBrainwave();
-}
-
-function renderBrainwave() {
-  const bw = BRAINWAVES.find(b => state.beatFreq <= b.max) || BRAINWAVES[BRAINWAVES.length - 1];
-  const pill = document.getElementById('brainwave-pill');
-  pill.textContent = bw.label + ' — ' + bw.desc;
-  pill.style.background = bw.bg;
-  pill.style.border = '1px solid ' + bw.border;
-  pill.style.color = bw.text;
-  pill.classList.remove('badge-animate');
-  void pill.offsetWidth;
-  pill.classList.add('badge-animate');
-}
-
-function syncUI() {
-  setSlider('s-carrier', state.carrierFreq,      100, 500);
-  setSlider('s-beat',    state.beatFreq,          0.5, 40);
-  setSlider('s-bvol',    state.binauralVol,       0,   1);
-  setSlider('s-white',   state.whiteVol,          0,   1);
-  setSlider('s-pink',    state.pinkVol,           0,   1);
-  setSlider('s-brown',   state.brownVol,          0,   1);
-  setSlider('s-spatial', state.spatialIntensity,  0,   1);
-  renderLabels();
-}
-
-function renderCustomPresets() {
-  const list = document.getElementById('custom-list');
-  if (customPresets.length === 0) {
-    list.innerHTML = '<p class="text-xs italic" style="color:#4b5563;">No saved presets yet.</p>';
-    return;
-  }
-  list.innerHTML = customPresets.map((p, i) => `
-    <div class="flex items-center gap-2">
-      <button class="flex-1 py-2 px-3 rounded-xl text-xs font-medium text-left transition-all active:scale-95 cp-load" data-i="${i}"
-        style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#c4b5fd;">
-        ${esc(p.name)}
-      </button>
-      <button class="w-8 h-8 rounded-lg flex items-center justify-center transition-all active:scale-95 cp-del" data-i="${i}"
-        style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#fca5a5;" aria-label="Delete">
-        ✕
-      </button>
-    </div>`).join('');
-}
-
-const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-// ── State management ──────────────────────────────────────────────────────────
-
-function applyState(patch) {
-  Object.assign(state, patch);
-  syncUI();
-  if (eng.ctx) {
-    syncBinauralFreqs();
-    syncBinauralVol();
-    ['white', 'pink', 'brown'].forEach(syncNoiseVol);
-  }
-  persist();
-}
-
-function persist() {
-  try {
-    localStorage.setItem('thenopi-state',   JSON.stringify(state));
-    localStorage.setItem('thenopi-presets', JSON.stringify(customPresets));
-  } catch (e) {}
-}
-
-function load() {
-  try {
-    const s = localStorage.getItem('thenopi-state');
-    if (s) Object.assign(state, JSON.parse(s));
-    const p = localStorage.getItem('thenopi-presets');
-    if (p) customPresets = JSON.parse(p);
-  } catch (e) {}
-}
-
-// ── Export / Import ───────────────────────────────────────────────────────────
-
-function exportJSON() {
-  const blob = new Blob([JSON.stringify({ version: 1, state, customPresets }, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), { href: url, download: 'thenopi-settings.json' });
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function importJSON(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.state) applyState(data.state);
-      if (Array.isArray(data.customPresets)) {
-        customPresets = data.customPresets;
-        renderCustomPresets();
-        persist();
-      }
-    } catch (err) {
-      alert('Invalid settings file.');
-    }
-  };
-  reader.readAsText(file);
-}
-
-// ── Events ────────────────────────────────────────────────────────────────────
-
-const SLIDERS = [
-  { id: 's-carrier', key: 'carrierFreq',     min: 100, max: 500, onAudio: syncBinauralFreqs },
-  { id: 's-beat',    key: 'beatFreq',         min: 0.5, max: 40,  onAudio: syncBinauralFreqs },
-  { id: 's-bvol',    key: 'binauralVol',      min: 0,   max: 1,   onAudio: syncBinauralVol   },
-  { id: 's-white',   key: 'whiteVol',         min: 0,   max: 1,   onAudio: () => syncNoiseVol('white') },
-  { id: 's-pink',    key: 'pinkVol',          min: 0,   max: 1,   onAudio: () => syncNoiseVol('pink')  },
-  { id: 's-brown',   key: 'brownVol',         min: 0,   max: 1,   onAudio: () => syncNoiseVol('brown') },
-  { id: 's-spatial', key: 'spatialIntensity', min: 0,   max: 1,   onAudio: null },
-];
-
-function setupEvents() {
-  // Headphone modal
-  document.getElementById('modal-dismiss').addEventListener('click', () => {
-    document.getElementById('headphone-modal').style.display = 'none';
-    try { localStorage.setItem('thenopi-hp-ack', '1'); } catch(e) {}
-  });
-
-  // Play button
-  document.getElementById('play-btn').addEventListener('click', togglePlay);
-
-  // Sliders
-  SLIDERS.forEach(({ id, key, onAudio }) => {
-    const el = document.getElementById(id);
-    el.addEventListener('input', () => {
-      state[key] = parseFloat(el.value);
-      fillFromSlider(el);
-      renderLabels();
-      if (onAudio && eng.ctx) onAudio();
-      persist();
-    });
-  });
-
-  // Section toggles
-  document.querySelectorAll('.section-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!expanded));
-      document.getElementById(btn.dataset.target).classList.toggle('open', !expanded);
-    });
-  });
-
-  // Built-in presets
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => applyState(PRESETS[btn.dataset.preset]));
-  });
-
-  // Save custom preset
-  document.getElementById('save-preset').addEventListener('click', () => {
-    const name = window.prompt('Name for this preset:');
-    if (!name || !name.trim()) return;
-    customPresets.push({ name: name.trim(), ...state });
-    renderCustomPresets();
-    persist();
-  });
-
-  // Custom preset load / delete (delegated)
-  document.getElementById('custom-list').addEventListener('click', e => {
-    const loadBtn = e.target.closest('.cp-load');
-    const delBtn  = e.target.closest('.cp-del');
-    if (loadBtn) {
-      const { name, ...s } = customPresets[+loadBtn.dataset.i];
-      applyState(s);
-    }
-    if (delBtn) {
-      const i = +delBtn.dataset.i;
-      if (confirm('Delete preset "' + customPresets[i].name + '"?')) {
-        customPresets.splice(i, 1);
-        renderCustomPresets();
-        persist();
-      }
-    }
-  });
-
-  // Export / import
-  document.getElementById('export-btn').addEventListener('click', exportJSON);
-  document.getElementById('import-input').addEventListener('change', e => {
-    if (e.target.files[0]) importJSON(e.target.files[0]);
-    e.target.value = '';
-  });
-}
-
-// ── Boot ──────────────────────────────────────────────────────────────────────
-
-document.addEventListener('DOMContentLoaded', () => {
-  load();
-  syncUI();
-  renderCustomPresets();
-  setupEvents();
-
-  // Show headphone modal only for first-time visitors
-  try {
-    if (!localStorage.getItem('thenopi-hp-ack')) {
-      document.getElementById('headphone-modal').style.display = 'flex';
-    }
-  } catch(e) {
-    document.getElementById('headphone-modal').style.display = 'flex';
-  }
-});
-</script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
